@@ -1,0 +1,55 @@
+name: Build and Package SnapClicker
+
+on:
+  push:
+    branches:
+      - release
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Version and Create JSON File
+        id: get-version
+        shell: pwsh
+        run: |
+          $version = (Select-String -Path SnapClicker.csproj -Pattern '<Version>([^<]+)' | % { $_.Matches.Groups[1].Value })
+          Write-Output "version=$version" >> $env:GITHUB_OUTPUT
+          @{ version = $version } | ConvertTo-Json | Out-File -FilePath version.json -Encoding utf8
+          Get-Content version.json
+
+      - name: Generate Changelog File
+        id: changelog-file
+        uses: TriPSs/conventional-changelog-action@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          output-file: 'CHANGELOG.md'
+          version-file: 'version.json'
+          version-path: 'version'
+          skip-bump: true
+          skip-on-empty: false
+          preset: 'angular'
+          tag-prefix: 'v'
+          release-count: 1
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.x"
+
+      - name: Publish .NET Project
+        run: dotnet publish -c Release --self-contained -r win-x64 -o ./publish
+
+      - name: Create Velopack Release
+        run: |
+          dotnet tool install -g vpk
+          vpk download github --repoUrl https://github.com/p6laris/SnapClicker --token ${{ secrets.GITHUB_TOKEN }}
+          vpk pack --releaseNotes CHANGELOG.md --packId SnapClicker --packVersion ${{ steps.get-version.outputs.version }} --packDir ./publish --mainExe SnapClicker.exe --packTitle SnapClicker --icon ./SnapClicker1024.ico
+          vpk upload github --repoUrl https://github.com/p6laris/SnapClicker --publish --releaseName "SnapClicker ${{ steps.get-version.outputs.version }}" --tag v${{ steps.get-version.outputs.version }} --token ${{ secrets.GITHUB_TOKEN }}
