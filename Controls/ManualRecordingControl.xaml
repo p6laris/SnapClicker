@@ -1,0 +1,233 @@
+﻿<UserControl
+    d:DataContext="{d:DesignInstance local:ManualRecordingControl,
+                                     IsDesignTimeCreatable=False}"
+    mc:Ignorable="d"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    x:Class="SnapClicker.Controls.ManualRecordingControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SnapClicker.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--  Time inputs  -->
+    <StackPanel>
+        <ui:TextBlock
+            FontTypography="BodyStrong"
+            Margin="0,0,0,10"
+            Text="Action Interval" />
+        <StackPanel Orientation="Horizontal">
+            <ui:NumberBox
+                LargeChange="5"
+                Margin="0,0,8,0"
+                MaxDecimalPlaces="0"
+                Minimum="0"
+                PlaceholderText="Hours"
+                SmallChange="1"
+                Value="{Binding ViewModel.Hours, UpdateSourceTrigger=PropertyChanged}" />
+            <ui:NumberBox
+                LargeChange="5"
+                Margin="0,0,8,0"
+                MaxDecimalPlaces="0"
+                Minimum="0"
+                PlaceholderText="Minutes"
+                SmallChange="1"
+                Value="{Binding ViewModel.Minutes, UpdateSourceTrigger=PropertyChanged}" />
+            <ui:NumberBox
+                LargeChange="5"
+                Margin="0,0,8,0"
+                MaxDecimalPlaces="0"
+                Minimum="0"
+                PlaceholderText="Seconds"
+                SmallChange="1"
+                Value="{Binding ViewModel.Seconds, UpdateSourceTrigger=PropertyChanged}" />
+            <ui:NumberBox
+                LargeChange="5"
+                Margin="0,0,8,0"
+                MaxDecimalPlaces="0"
+                Minimum="0"
+                PlaceholderText="Milliseconds"
+                SmallChange="1"
+                Value="{Binding ViewModel.Milliseconds, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+        <StackPanel
+            Margin="0,10,0,0"
+            Orientation="Horizontal"
+            VerticalAlignment="Center"
+            Visibility="{Binding ViewModel.IsValid, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}">
+            <ui:SymbolIcon
+                Foreground="{StaticResource ErrorBrush}"
+                Margin="0,0,5,0"
+                Symbol="ErrorCircle20" />
+            <ui:TextBlock
+                Foreground="{StaticResource ErrorBrush}"
+                Text="Time interval cannot be empty. Please provide a value for at least one of the fields."
+                TextWrapping="Wrap" />
+        </StackPanel>
+        <!--  Action type input  -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl Margin="0,10,0,0" Padding="12,8,12,8">
+                <ui:CardControl.Header>
+                    <ui:TextBlock
+                        FontTypography="BodyStrong"
+                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                        Margin="0"
+                        Text="Action Type"
+                        TextWrapping="WrapWithOverflow" />
+                </ui:CardControl.Header>
+                <ComboBox
+                    ItemsSource="{Binding ViewModel.ActionTypes}"
+                    SelectedItem="{Binding ViewModel.SelectedActionType, Mode=TwoWay}"
+                    Width="200" />
+            </ui:CardControl>
+        </Grid>
+
+        <!--  Mouse coordinate input section  -->
+        <Grid Margin="0,10,0,0" Visibility="{Binding ViewModel.ShouldShowKeySection, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardExpander
+                Grid.Column="0"
+                Icon="{ui:SymbolIcon CursorHover20}"
+                IsExpanded="True">
+                <ui:CardExpander.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock
+                            FontSize="14"
+                            FontTypography="BodyStrong"
+                            Grid.Column="0"
+                            Grid.Row="0"
+                            Text="Cursor Position"
+                            VerticalAlignment="Center" />
+                        <ui:Button
+                            Appearance="Primary"
+                            Command="{Binding ViewModel.RecordPositionCommand}"
+                            Content="Capture position"
+                            Grid.Column="1"
+                            Grid.Row="0"
+                            Margin="0,0,5,0" />
+                    </Grid>
+                </ui:CardExpander.Header>
+                <StackPanel Margin="24,0.5,24,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Grid.Column="0"
+                            Grid.Row="0"
+                            Text="X:"
+                            VerticalAlignment="Center" />
+                        <ui:NumberBox
+                            Grid.Column="1"
+                            Grid.Row="0"
+                            PlaceholderText="X"
+                            Value="{Binding ViewModel.CursorX, Mode=TwoWay}" />
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Grid.Column="0"
+                            Grid.Row="1"
+                            Text="Y:"
+                            VerticalAlignment="Center" />
+                        <ui:NumberBox
+                            Grid.Column="1"
+                            Grid.Row="1"
+                            PlaceholderText="Y"
+                            Value="{Binding ViewModel.CursorY, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+            </ui:CardExpander>
+        </Grid>
+
+        <!--  Key press input section  -->
+        <Grid Margin="0,10,0,0" Visibility="{Binding ViewModel.ShouldShowKeySection, Converter={StaticResource BoolToVisibilityConverter}, Mode=TwoWay}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardExpander
+                Grid.Column="0"
+                Icon="{ui:SymbolIcon KeyboardLayoutFloat20}"
+                IsExpanded="True">
+                <ui:CardExpander.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock
+                            FontSize="14"
+                            FontTypography="BodyStrong"
+                            Grid.Column="0"
+                            Grid.Row="0"
+                            Text="Key value"
+                            VerticalAlignment="Center" />
+                        <ui:Button
+                            Appearance="Primary"
+                            Command="{Binding ViewModel.RecordKeyCommand}"
+                            Content="Capture a key"
+                            Focusable="False"
+                            Grid.Column="1"
+                            Grid.Row="0"
+                            Margin="0,0,5,0" />
+                    </Grid>
+                </ui:CardExpander.Header>
+                <StackPanel Margin="24,0.5,24,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50" />
+                        </Grid.RowDefinitions>
+
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Grid.Column="0"
+                            Grid.Row="0"
+                            Text="Key:"
+                            VerticalAlignment="Center" />
+                        <ComboBox
+                            Grid.Column="1"
+                            Grid.Row="0"
+                            ItemsSource="{Binding ViewModel.Keys}"
+                            Margin="0,0,20,0"
+                            SelectedItem="{Binding ViewModel.SelectedKey, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+            </ui:CardExpander>
+        </Grid>
+
+        <StackPanel Margin="0,20,0,0" Orientation="Horizontal">
+            <ui:Button
+                Appearance="Primary"
+                Command="{Binding ViewModel.SaveRecordingCommand}"
+                Content="Save record"
+                IsEnabled="{Binding ViewModel.IsValid, Mode=TwoWay}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

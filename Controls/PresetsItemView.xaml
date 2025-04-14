@@ -1,0 +1,152 @@
+﻿<UserControl
+    d:DataContext="{d:DesignInstance local:PresetsView,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="300"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapClicker.Controls.PresetsItemView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SnapClicker.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <ContextMenu x:Key="PresetContextMenu">
+            <ui:MenuItem
+                Command="{Binding PlacementTarget.Tag.EditPresetCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                CommandParameter="{Binding}"
+                Header="Edit"
+                Icon="{ui:SymbolIcon TableCellEdit16}" />
+            <ui:MenuItem
+                Command="{Binding PlacementTarget.Tag.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                CommandParameter="{Binding}"
+                Foreground="{StaticResource ErrorBrush}"
+                Header="Delete"
+                Icon="{ui:SymbolIcon Delete16}" />
+        </ContextMenu>
+    </UserControl.Resources>
+    <!--  Presets items control view  -->
+    <ItemsControl ItemsSource="{Binding ViewModel.PresetsView}" Visibility="{Binding ViewModel.HasPresets, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=false}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel Margin="2" Orientation="Vertical" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:CardExpander Grid.Column="0" Icon="{ui:SymbolIcon DesktopCursor20}">
+                            <!--  Items header  -->
+                            <ui:CardExpander.Header>
+                                <Grid ContextMenu="{StaticResource PresetContextMenu}" Tag="{Binding Path=DataContext.ViewModel, RelativeSource={RelativeSource AncestorType=local:PresetsView}}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Vertical">
+                                        <ui:TextBlock
+                                            FontSize="14"
+                                            FontTypography="BodyStrong"
+                                            Text="{Binding Name}"
+                                            VerticalAlignment="Center" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:TextBlock
+                                                FontTypography="Caption"
+                                                Text="{Binding RecordedActions.Count}"
+                                                VerticalAlignment="Center" />
+                                            <ui:TextBlock
+                                                FontTypography="Caption"
+                                                Text=" Actions"
+                                                VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel
+                                        Grid.Column="1"
+                                        Grid.Row="0"
+                                        Orientation="Horizontal">
+
+                                        <ui:SymbolIcon
+                                            FontSize="20"
+                                            HorizontalAlignment="Center"
+                                            Margin="0,0,8,0"
+                                            Symbol="ArrowRepeatAll20"
+                                            ToolTip="The preset will repeat until stopped."
+                                            VerticalAlignment="Center"
+                                            Visibility="{Binding IsRepetitive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" />
+
+                                        <Grid
+                                            Height="32"
+                                            Margin="0,0,8,0"
+                                            Visibility="{Binding IsRepetitive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=false}"
+                                            Width="23">
+                                            <!--  SymbolIcon  -->
+                                            <ui:SymbolIcon
+                                                FontSize="20"
+                                                HorizontalAlignment="Center"
+                                                Symbol="ArrowRepeatAll20"
+                                                ToolTip="The preset will repeat."
+                                                VerticalAlignment="Center" />
+
+                                            <!--  InfoBadge  -->
+                                            <ui:InfoBadge
+                                                FontSize="10"
+                                                HorizontalAlignment="Right"
+                                                Margin="0,-5,-5,0"
+                                                Severity="Attention"
+                                                Value="{Binding RepeatCount, Mode=TwoWay}"
+                                                VerticalAlignment="Top" />
+                                        </Grid>
+                                        <ui:Button
+                                            Appearance="Primary"
+                                            Command="{Binding Path=DataContext.ViewModel.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=local:PresetsView}}"
+                                            CommandParameter="{Binding}"
+                                            Margin="0,0,10,0">
+                                            <Button.Content>
+                                                <ui:SymbolIcon Symbol="Open20" />
+                                            </Button.Content>
+                                        </ui:Button>
+                                    </StackPanel>
+                                </Grid>
+                            </ui:CardExpander.Header>
+
+                            <!--  Items content  -->
+                            <StackPanel>
+                                <Border
+                                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1,1,1,0"
+                                    CornerRadius="8,8,0,0"
+                                    Padding="16">
+                                    <StackPanel>
+                                        <ui:TextBlock HorizontalAlignment="Left" Text="Actions" />
+                                        <Separator Margin="0,5,0,5" />
+
+                                        <!--  Preset items view  -->
+                                        <ui:ListView
+                                            ItemTemplate="{StaticResource ActionViewWithContextTemplate}"
+                                            ItemsSource="{Binding Path=RecordedActions}"
+                                            MaxHeight="400"
+                                            Tag="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            VirtualizingStackPanel.IsVirtualizing="True"
+                                            VirtualizingStackPanel.VirtualizationMode="Recycling" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ui:CardExpander>
+                    </Grid>
+                </StackPanel>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

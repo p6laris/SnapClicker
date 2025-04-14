@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>SnapClicker1024.ico</ApplicationIcon>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Version>0.0.27</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="ObservableCollections" Version="3.3.3" />
+    <PackageReference Include="Velopack" Version="0.0.1213-g57cf68d" />
+    <PackageReference Include="WPF-UI" Version="4.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0 "/>
+    <PackageReference Include="WPF-UI.DependencyInjection" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\wpfui-icon-256.png" />
+    <None Remove="Assets\wpfui-icon-1024.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\SnapClicker256.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\SnapClicker256.png" />
+    <Resource Include="Assets\SnapClicker256.png" />
+    <None Remove="SnapClicker1024.png" />
+    <None Remove="SnapClicker1024.ico" />
+    <Resource Include="SnapClicker1024.ico" />
+    <None Remove="Assets\SnapClickerApp.png" />
+    <Resource Include="Assets\SnapClickerApp.png" />
+  </ItemGroup>
+
+</Project>

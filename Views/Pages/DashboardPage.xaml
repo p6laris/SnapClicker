@@ -1,0 +1,152 @@
+﻿<Page
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Title="SnapClicker"
+    d:DataContext="{d:DesignInstance local:DashboardPage,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    x:Class="SnapClicker.Views.Pages.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:ctrls="clr-namespace:SnapClicker.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SnapClicker.Views.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Margin="0,0,0,20">
+        <Grid Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!--  Image Section  -->
+            <Border
+                Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="12"
+                Grid.Column="0"
+                Margin="0,0,5,0">
+                <Image
+                    Height="150"
+                    HorizontalAlignment="Center"
+                    Margin="10"
+                    RenderOptions.BitmapScalingMode="HighQuality"
+                    Source="pack://application:,,,/Assets/SnapClickerApp.png"
+                    Stretch="UniformToFill"
+                    VerticalAlignment="Center" />
+            </Border>
+
+            <!--  Text Content Section  -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                <ui:TextBlock
+                    FontSize="13"
+                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                    Padding="10"
+                    Text="SnapClicker is a powerful tool that lets you record and replay mouse and keyboard actions with precision. Whether you're streamlining repetitive tasks, setting up complex click sequences, or creating keyboard-driven workflows, or both - SnapClicker helps you automate them all with ease."
+                    TextWrapping="Wrap" />
+                <ui:HyperlinkButton
+                    Content="Learn more"
+                    FontSize="13"
+                    NavigateUri="https://github.com/p6laris/SnapClicker"
+                    Padding="10" />
+            </StackPanel>
+        </Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!--  Create title  -->
+            <ui:TextBlock
+                FontTypography="Subtitle"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                Grid.Row="0"
+                Margin="0,0,0,10"
+                Text="Create new recording" />
+
+            <!--  Recording toggle section  -->
+            <Grid Grid.Column="1" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ToggleButton
+                    Grid.Column="0"
+                    IsChecked="{Binding ViewModel.IsRecordingSet}"
+                    Margin="0,0,5,0"
+                    ToolTip="Create by recording">
+                    <ToggleButton.Content>
+                        <ui:SymbolIcon Symbol="Record20">
+                            <ui:SymbolIcon.Style>
+                                <Style TargetType="ui:SymbolIcon">
+                                    <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorPrimaryBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}" Value="True">
+                                            <Setter Property="Foreground" Value="{ui:ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:SymbolIcon.Style>
+                        </ui:SymbolIcon>
+                    </ToggleButton.Content>
+                </ToggleButton>
+                <ToggleButton
+                    Grid.Column="1"
+                    IsChecked="{Binding ViewModel.IsRecordingSet, Converter={StaticResource BooleanInverterConverter}}"
+                    ToolTip="Create manually">
+                    <ToggleButton.Content>
+                        <ui:SymbolIcon Symbol="DesktopEdit20">
+                            <ui:SymbolIcon.Style>
+                                <Style TargetType="ui:SymbolIcon">
+                                    <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorPrimaryBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}" Value="True">
+                                            <Setter Property="Foreground" Value="{ui:ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:SymbolIcon.Style>
+                        </ui:SymbolIcon>
+                    </ToggleButton.Content>
+                </ToggleButton>
+            </Grid>
+
+            <!--  Recording section  -->
+            <StackPanel
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Grid.Row="1"
+                Visibility="{Binding ViewModel.IsRecordingSet, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ctrls:RecordingControl />
+            </StackPanel>
+
+            <!--  Manual preset section  -->
+            <Border
+                Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1,1,1,0"
+                CornerRadius="8,8,0,0"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Grid.Row="1"
+                Padding="16"
+                Visibility="{Binding ViewModel.IsRecordingSet, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}">
+                <ctrls:ManualRecordingControl />
+            </Border>
+        </Grid>
+        <!--  Presets view  -->
+        <ctrls:PresetsView />
+    </StackPanel>
+</Page>

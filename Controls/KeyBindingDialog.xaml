@@ -1,0 +1,110 @@
+﻿<ui:ContentDialog
+    CloseButtonText="Close"
+    IsPrimaryButtonEnabled="{Binding ViewModel.IsValid}"
+    PrimaryButtonText="Save"
+    Title="Key shortcut"
+    d:DataContext="{d:DesignInstance local:KeyBindingDialog,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="1080"
+    d:DesignWidth="720"
+    mc:Ignorable="d"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    x:Class="SnapClicker.Controls.KeyBindingDialog"
+    x:Name="KeyDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SnapClicker.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ui:ContentDialog.Resources>
+        <Style BasedOn="{StaticResource {x:Type ui:ContentDialog}}" TargetType="{x:Type local:KeyBindingDialog}" />
+    </ui:ContentDialog.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <ui:TextBlock
+            FontTypography="Body"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Grid.Row="0"
+            VerticalAlignment="Top">
+            <Span xml:space="preserve">Press sequence of key presses to change this shortcut.<LineBreak />Press <Bold>space</Bold> to reset the captured keys.</Span>
+        </ui:TextBlock>
+        <ItemsControl
+            Grid.Column="1"
+            Grid.Row="1"
+            ItemsSource="{Binding ViewModel.KeysView}"
+            Margin="0,20">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border
+                        BorderThickness="2"
+                        CornerRadius="5"
+                        HorizontalAlignment="Center"
+                        Margin="2"
+                        Padding="4"
+                        VerticalAlignment="Center">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="{ui:ThemeResource AccentTextFillColorTertiaryBrush}" />
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=KeyDialog, Path=ViewModel.IsValid}" Value="False">
+                                        <Setter Property="Background" Value="{StaticResource ErrorBrush}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource SecondaryErrorBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock
+                            FontSize="18"
+                            FontWeight="SemiBold"
+                            HorizontalAlignment="Center"
+                            Padding="5"
+                            Text="{Binding Converter={StaticResource KeyToStringConverter}}"
+                            VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{ui:ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=KeyDialog, Path=ViewModel.IsValid}" Value="False">
+                                            <Setter Property="Foreground" Value="{StaticResource SecondaryErrorBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <ui:TextBlock
+            FontTypography="Caption"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Grid.Row="3"
+            VerticalAlignment="Bottom">
+            <Span xml:space="preserve">Only shortcuts that start with <Bold>Windows</Bold> or <Bold>Ctrl</Bold>, <Bold>Shift</Bold>, <Bold>Alt</Bold> keys are valid.</Span>
+        </ui:TextBlock>
+    </Grid>
+</ui:ContentDialog>

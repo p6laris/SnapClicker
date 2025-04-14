@@ -1,0 +1,384 @@
+﻿<Page
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Title="SettingsPage"
+    d:DataContext="{d:DesignInstance local:SettingsPage,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    x:Class="SnapClicker.Views.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SnapClicker.Views.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Margin="3">
+        <!--  Update  -->
+        <ui:TextBlock
+            FontTypography="BodyStrong"
+            Margin="4,10,0,0"
+            Text="{Binding ViewModel.AppVersion}" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon DualScreenUpdate24}"
+                Margin="4,4,4,2"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Update"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            FontTypography="Caption"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="{Binding ViewModel.LastCheckedUpdateTime}"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:HyperlinkButton
+                            Appearance="Secondary"
+                            Content="Release notes"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            IsEnabled="{Binding ViewModel.IsReleaseNotesLinkAvailable}"
+                            NavigateUri="{Binding ViewModel.ReleaseNotesLink}"
+                            Padding="0" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:Button Command="{Binding ViewModel.CheckForUpdatesCommand}" Content="Check for updates" />
+                    <ui:Button
+                        Command="{Binding ViewModel.DownloadAndInstallUpdatesCommand}"
+                        Content="Update"
+                        IsEnabled="{Binding ViewModel.IsUpdateAvailable}"
+                        Margin="3,0,0,0" />
+                </StackPanel>
+            </ui:CardControl>
+        </Grid>
+        <ProgressBar IsIndeterminate="True" Visibility="{Binding ViewModel.IsProgressing, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <ui:InfoBar
+            IsClosable="False"
+            IsOpen="{Binding ViewModel.IsUpdateAvailable, Mode=TwoWay}"
+            Margin="4,0,0,0"
+            Message="{Binding ViewModel.ToUpdateVersion}"
+            Severity="Warning"
+            Title="Update is available." />
+        <ui:InfoBar
+            IsClosable="False"
+            IsOpen="{Binding ViewModel.IsUpdateAvailable, Mode=TwoWay, Converter={StaticResource BooleanInverterConverter}}"
+            Margin="4,0,0,10"
+            Severity="Success"
+            Title="SnapClicker is up to date." />
+
+        <ui:TextBlock
+            FontTypography="BodyStrong"
+            Margin="4,10,0,0"
+            Text="Behaviors" />
+
+        <!--  Interval  -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon Timer24}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Action Interval"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                            Text="The delay between actions in milliseconds."
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:NumberBox
+                    MaxDecimalPlaces="0"
+                    Maximum="1000"
+                    Minimum="0"
+                    PlaceholderText="Interval"
+                    Value="{Binding ViewModel.ActionInterval, UpdateSourceTrigger=PropertyChanged}" />
+            </ui:CardControl>
+        </Grid>
+
+        <!--  Mouse Movement  -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon CursorHover20}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Mouse Movement"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="Should record mouse movement."
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding ViewModel.IsMouseMoveRecordingSet}" />
+            </ui:CardControl>
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon FastAcceleration20}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Precise Delays"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="Enables high-precision playback for recorded actions."
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <ui:Button
+                        Appearance="Caution"
+                        Command="{Binding ViewModel.ShowWarningFlyoutCommand}"
+                        Padding="6,5">
+                        <ui:Button.Content>
+                            <ui:SymbolIcon Symbol="Warning20" />
+                        </ui:Button.Content>
+                    </ui:Button>
+
+                    <ui:Flyout
+                        Grid.Column="0"
+                        IsOpen="{Binding ViewModel.IsWarningFlyoutOpen}"
+                        Placement="Top">
+                        <TextBlock
+                            HorizontalAlignment="Left"
+                            Text="This mode may lead to increased CPU usage during simulation, only use when precise timing is critical."
+                            TextWrapping="WrapWithOverflow"
+                            Width="280" />
+                    </ui:Flyout>
+                    <ui:ToggleSwitch
+                        Grid.Column="1"
+                        IsChecked="{Binding ViewModel.IsPreciseDelaySet}"
+                        Margin="10,0,0,0" />
+                </Grid>
+            </ui:CardControl>
+        </Grid>
+        <ui:TextBlock
+            FontTypography="BodyStrong"
+            Margin="4,10,0,0"
+            Text="Key shortcuts" />
+        <!--  Recording shortcut  -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon Record24}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Recording shortcut"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="Start and stop keyboard shortcut"
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:Button
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    Command="{Binding Path=ViewModel.ChangeStartAndStopKeyBindingCommand}"
+                    CommandParameter="{Binding}"
+                    CornerRadius="4"
+                    Padding="15,10">
+                    <ItemsControl ItemsSource="{Binding ViewModel.StartAndStopBinding.AllKeys}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel
+                                    HorizontalAlignment="Center"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Background="{ui:ThemeResource AccentTextFillColorTertiaryBrush}"
+                                    CornerRadius="2"
+                                    HorizontalAlignment="Center"
+                                    Margin="2"
+                                    Padding="5,4"
+                                    VerticalAlignment="Center">
+                                    <ui:TextBlock
+                                        FontSize="15"
+                                        FontWeight="SemiBold"
+                                        Foreground="{ui:ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                        HorizontalAlignment="Center"
+                                        Padding="4,2"
+                                        Text="{Binding}"
+                                        VerticalAlignment="Center" />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ui:Button>
+            </ui:CardControl>
+        </Grid>
+
+        <!--  Play and stop shortcut  -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon PlayCircle20}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Play shortcut"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                            Text="Play and stop keyboard shortcut"
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:Button
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    Command="{Binding Path=ViewModel.ChangePlayAndStopKeyBindingCommand}"
+                    CommandParameter="{Binding}"
+                    CornerRadius="4"
+                    Padding="15,10">
+                    <ItemsControl ItemsSource="{Binding ViewModel.PlayAndStopBinding.AllKeys}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel
+                                    HorizontalAlignment="Center"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Background="{ui:ThemeResource AccentTextFillColorTertiaryBrush}"
+                                    CornerRadius="2"
+                                    HorizontalAlignment="Center"
+                                    Margin="2"
+                                    Padding="5,4"
+                                    VerticalAlignment="Center">
+                                    <ui:TextBlock
+                                        FontSize="15"
+                                        FontWeight="SemiBold"
+                                        Foreground="{ui:ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                        HorizontalAlignment="Center"
+                                        Padding="4,2"
+                                        Text="{Binding}"
+                                        VerticalAlignment="Center" />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ui:Button>
+            </ui:CardControl>
+        </Grid>
+
+        <!--  Theme  -->
+        <ui:TextBlock
+            FontTypography="BodyStrong"
+            Margin="4,10,0,0"
+            Text="Personalization" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon DarkTheme24}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Theme"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="The desired app theme."
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ComboBox
+                    DisplayMemberPath="DisplayName"
+                    ItemsSource="{Binding ViewModel.ThemesView}"
+                    Margin="0,12,0,0"
+                    SelectedValue="{Binding ViewModel.CurrentTheme, Mode=TwoWay}"
+                    SelectedValuePath="Value"
+                    Width="200" />
+            </ui:CardControl>
+        </Grid>
+    </StackPanel>
+</Page>

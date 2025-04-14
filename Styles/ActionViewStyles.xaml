@@ -1,0 +1,239 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:local="clr-namespace:SnapClicker.Models"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--  Existing DataTemplate for RecordedAction  -->
+    <DataTemplate DataType="{x:Type local:RecordedAction}" x:Key="ActionViewTemplate">
+        <Border
+            Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+            CornerRadius="4"
+            Margin="2,4,2,4"
+            Padding="4,8,4,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!--  Mouse Action  -->
+                <Grid
+                    Grid.Column="0"
+                    HorizontalAlignment="Center"
+                    Visibility="{Binding Key, Converter={StaticResource KeyToVisibilityConverter}, ConverterParameter=true}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon
+                        HorizontalAlignment="Left"
+                        Margin="0,0,5,0"
+                        Symbol="CursorClick20"
+                        Visibility="{Binding Type, Converter={StaticResource MouseActionsToVisibilityConverter}}" />
+                    <ui:SymbolIcon
+                        HorizontalAlignment="Left"
+                        Margin="0,0,5,0"
+                        Symbol="CursorHover20"
+                        Visibility="{Binding Type, Converter={StaticResource MouseMoveActionToVisibilityConverter}}" />
+                    <ui:TextBlock
+                        FontTypography="Caption"
+                        FontWeight="SemiBold"
+                        Grid.Column="1"
+                        HorizontalAlignment="Left"
+                        Text="{Binding Type}" />
+                </Grid>
+
+                <!--  Coordinates  -->
+                <Grid
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding Key, Converter={StaticResource KeyToVisibilityConverter}, ConverterParameter=true}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <ui:TextBlock
+                            FontTypography="Caption"
+                            FontWeight="SemiBold"
+                            Text="X: " />
+                        <ui:TextBlock FontTypography="Caption" Text="{Binding X}" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Column="1"
+                        Margin="10,0,0,0"
+                        Orientation="Horizontal">
+                        <ui:TextBlock
+                            FontTypography="Caption"
+                            FontWeight="SemiBold"
+                            Text="Y: " />
+                        <ui:TextBlock FontTypography="Caption" Text="{Binding Y}" />
+                    </StackPanel>
+                </Grid>
+
+                <!--  Keyboard Action  -->
+                <Grid
+                    Grid.Column="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding Type, Converter={StaticResource KeyActionToVisibilityConverter}, ConverterParameter=false}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon
+                        Grid.Column="0"
+                        Margin="0,0,5,0"
+                        Symbol="Keyboard20" />
+                    <ui:TextBlock
+                        FontTypography="Caption"
+                        Grid.Column="1"
+                        Text="{Binding Type}" />
+                </Grid>
+
+                <ui:TextBlock
+                    FontTypography="Caption"
+                    Grid.Column="1"
+                    Text="{Binding KeyString}"
+                    Visibility="{Binding Type, Converter={StaticResource KeyActionToVisibilityConverter}, ConverterParameter=false}" />
+
+                <!--  Timestamp  -->
+                <StackPanel
+                    Grid.Column="2"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Margin="0,0,5,0" Symbol="Clock20" />
+                    <ui:TextBlock FontTypography="Caption" Text="{Binding FormattedTimestamp}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!--  New DataTemplate for ActionViewWithContextMenu  -->
+    <DataTemplate DataType="{x:Type local:RecordedAction}" x:Key="ActionViewWithContextTemplate">
+        <Border
+            Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+            CornerRadius="4"
+            Margin="2,4,2,4"
+            Padding="4,8,4,8"
+            Tag="{Binding DataContext.ViewModel, RelativeSource={RelativeSource AncestorType=UserControl}}">
+            <!--  ContextMenu for the Border  -->
+            <Border.ContextMenu>
+                <ContextMenu>
+                    <ui:MenuItem
+                        Command="{Binding PlacementTarget.Tag.EditActionCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                        CommandParameter="{Binding}"
+                        Header="Edit"
+                        Icon="{ui:SymbolIcon TableCellEdit16}" />
+                    <ui:MenuItem
+                        Command="{Binding PlacementTarget.Tag.DeleteActionCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                        CommandParameter="{Binding Id}"
+                        Foreground="{StaticResource ErrorBrush}"
+                        Header="Delete"
+                        Icon="{ui:SymbolIcon Delete16}" />
+                </ContextMenu>
+            </Border.ContextMenu>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!--  Mouse Action  -->
+                <Grid
+                    Grid.Column="0"
+                    HorizontalAlignment="Center"
+                    Visibility="{Binding Key, Converter={StaticResource KeyToVisibilityConverter}, ConverterParameter=true}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon
+                        HorizontalAlignment="Left"
+                        Margin="0,0,5,0"
+                        Symbol="CursorClick20"
+                        Visibility="{Binding Type, Converter={StaticResource MouseActionsToVisibilityConverter}}" />
+                    <ui:SymbolIcon
+                        HorizontalAlignment="Left"
+                        Margin="0,0,5,0"
+                        Symbol="CursorHover20"
+                        Visibility="{Binding Type, Converter={StaticResource MouseMoveActionToVisibilityConverter}}" />
+                    <ui:TextBlock
+                        FontTypography="Caption"
+                        FontWeight="SemiBold"
+                        Grid.Column="1"
+                        HorizontalAlignment="Left"
+                        Text="{Binding Type}" />
+                </Grid>
+
+                <!--  Coordinates  -->
+                <Grid
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding Key, Converter={StaticResource KeyToVisibilityConverter}, ConverterParameter=true}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <ui:TextBlock
+                            FontTypography="Caption"
+                            FontWeight="SemiBold"
+                            Text="X: " />
+                        <ui:TextBlock FontTypography="Caption" Text="{Binding X}" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Column="1"
+                        Margin="10,0,0,0"
+                        Orientation="Horizontal">
+                        <ui:TextBlock
+                            FontTypography="Caption"
+                            FontWeight="SemiBold"
+                            Text="Y: " />
+                        <ui:TextBlock FontTypography="Caption" Text="{Binding Y}" />
+                    </StackPanel>
+                </Grid>
+
+
+                <!--  Keyboard Action  -->
+                <Grid
+                    Grid.Column="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding Type, Converter={StaticResource KeyActionToVisibilityConverter}, ConverterParameter=false}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon
+                        Grid.Column="0"
+                        Margin="0,0,5,0"
+                        Symbol="Keyboard20" />
+                    <ui:TextBlock
+                        FontTypography="Caption"
+                        Grid.Column="1"
+                        Text="{Binding Type}" />
+                </Grid>
+
+                <ui:TextBlock
+                    FontTypography="Caption"
+                    Grid.Column="1"
+                    Text="{Binding KeyString}"
+                    Visibility="{Binding Type, Converter={StaticResource KeyActionToVisibilityConverter}, ConverterParameter=false}" />
+
+                <!--  Timestamp  -->
+                <StackPanel
+                    Grid.Column="2"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Margin="0,0,5,0" Symbol="Clock20" />
+                    <ui:TextBlock FontTypography="Caption" Text="{Binding FormattedTimestamp}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+</ResourceDictionary>

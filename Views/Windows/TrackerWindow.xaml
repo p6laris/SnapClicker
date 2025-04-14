@@ -1,0 +1,92 @@
+﻿<Window
+    Background="{DynamicResource ApplicationBackgroundBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Height="50"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False"
+    Title="RecordInfoWindow"
+    Topmost="True"
+    Width="450"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None"
+    d:DataContext="{d:DesignInstance local:TrackerWindow,
+                                     IsDesignTimeCreatable=True}"
+    d:DesignHeight="50"
+    d:DesignWidth="450"
+    mc:Ignorable="d"
+    x:Class="SnapClicker.Views.Windows.TrackerWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SnapClicker.Views.Windows"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Border
+            Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1,1,1,0"
+            CornerRadius="0,0,0,0"
+            Grid.Column="0"
+            Padding="8"
+            Visibility="{Binding ViewModel.IsForMouseTracking, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=false}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel
+                    Grid.Column="0"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:SymbolIcon Symbol="DesktopCursor20" />
+                    <ui:TextBlock
+                        FontTypography="BodyStrong"
+                        Margin="10,0,5,0"
+                        Text="X:"
+                        VerticalAlignment="Center" />
+                    <ui:TextBlock
+                        FontTypography="Body"
+                        Text="{Binding ViewModel.CursorX}"
+                        VerticalAlignment="Center" />
+                </StackPanel>
+                <StackPanel
+                    Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <ui:TextBlock
+                        FontTypography="BodyStrong"
+                        Margin="0,0,5,0"
+                        Text="Y:"
+                        VerticalAlignment="Center" />
+                    <ui:TextBlock
+                        FontTypography="Body"
+                        Text="{Binding ViewModel.CursorY}"
+                        VerticalAlignment="Center" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!--  Tracking key press  -->
+        <Border
+            Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1,1,1,0"
+            CornerRadius="0,0,0,0"
+            Grid.Column="0"
+            Padding="8"
+            Visibility="{Binding ViewModel.IsForMouseTracking, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}">
+            <StackPanel VerticalAlignment="Center">
+                <ui:TextBlock
+                    FontTypography="Subtitle"
+                    HorizontalAlignment="Center"
+                    Text="Press a key to capture" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

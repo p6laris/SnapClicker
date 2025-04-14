@@ -1,0 +1,100 @@
+﻿<Page
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Title="DashboardPage"
+    d:DataContext="{d:DesignInstance local:RecordPage,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    x:Class="SnapClicker.Views.Pages.RecordPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SnapClicker.Views.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <Grid Margin="0,0,0,10" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:TextBlock
+                FontTypography="Subtitle"
+                Grid.Column="0"
+                Text="{Binding ViewModel.SelectedPreset.Name}" />
+
+
+            <ui:SymbolIcon
+                FontSize="20"
+                Grid.Column="1"
+                HorizontalAlignment="Center"
+                Symbol="ArrowRepeatAll20"
+                ToolTip="The preset will repeat until stopped."
+                VerticalAlignment="Center"
+                Visibility="{Binding ViewModel.SelectedPreset.IsRepetitive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}" />
+            <Grid
+                Grid.Column="1"
+                Height="32"
+                Margin="4,5"
+                Visibility="{Binding ViewModel.SelectedPreset.IsRepetitive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=false}"
+                Width="32">
+                <!--  SymbolIcon  -->
+                <ui:SymbolIcon
+                    FontSize="20"
+                    HorizontalAlignment="Center"
+                    Symbol="ArrowRepeatAll20"
+                    ToolTip="The preset will repeat."
+                    VerticalAlignment="Center" />
+
+                <!--  InfoBadge  -->
+                <ui:InfoBadge
+                    HorizontalAlignment="Right"
+                    Margin="0,-5,-5,0"
+                    Severity="Attention"
+                    Value="{Binding ViewModel.SelectedPreset.RepeatCount, Mode=TwoWay}"
+                    VerticalAlignment="Top" />
+            </Grid>
+        </Grid>
+        <Border
+            Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1,1,1,0"
+            CornerRadius="8"
+            Padding="16">
+            <!--  Recording menu  -->
+            <Menu FontSize="14">
+                <ui:MenuItem
+                    Command="{Binding ViewModel.PlayActionsCommand}"
+                    Header="Play"
+                    Icon="{ui:SymbolIcon Replay20,
+                                         Filled=False}"
+                    IsEnabled="{Binding ViewModel.IsSimulationRunning, Converter={StaticResource BooleanInverterConverter}}"
+                    ToolTip="Play the record." />
+                <ui:MenuItem
+                    Command="{Binding ViewModel.StopActionsCommand}"
+                    Header="Stop"
+                    Icon="{ui:SymbolIcon RecordStop24,
+                                         Filled=False}"
+                    IsEnabled="{Binding ViewModel.IsSimulationRunning}"
+                    ToolTip="Stop the record." />
+            </Menu>
+        </Border>
+        <Border
+            Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1,1,1,0"
+            Margin="0,5,0,5"
+            Padding="16">
+
+            <ui:ListView
+                ItemTemplate="{StaticResource ActionViewTemplate}"
+                ItemsSource="{Binding ViewModel.SelectedPreset.RecordedActions}"
+                MaxHeight="400"
+                VirtualizingStackPanel.IsVirtualizing="True"
+                VirtualizingStackPanel.VirtualizationMode="Recycling" />
+        </Border>
+    </StackPanel>
+</Page>

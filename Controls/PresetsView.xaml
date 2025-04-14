@@ -1,0 +1,90 @@
+﻿<UserControl
+    d:DataContext="{d:DesignInstance local:PresetsView,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="300"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="SnapClicker.Controls.PresetsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SnapClicker.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="clr-namespace:SnapClicker.Models"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Margin="0,30,0,0">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!--  Preset text  -->
+            <ui:TextBlock
+                FontTypography="Subtitle"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                Grid.Column="0"
+                Text="Presets"
+                VerticalAlignment="Center" />
+            <!--  Search and filter section  -->
+            <ui:TextBox
+                Grid.Column="1"
+                HorizontalAlignment="Right"
+                MinWidth="250"
+                PlaceholderText="Search presets"
+                Text="{Binding ViewModel.SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                VerticalAlignment="Center"
+                Visibility="{Binding ViewModel.HasPresets, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ui:TextBox.InputBindings>
+                    <KeyBinding Command="{Binding ViewModel.SearchPresetsCommand}" Key="Enter" />
+                </ui:TextBox.InputBindings>
+            </ui:TextBox>
+            <!--  Filter criteria menu  -->
+            <Menu
+                FontSize="10"
+                Grid.Column="2"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Visibility="{Binding ViewModel.HasPresets, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=false}">
+                <ui:MenuItem
+                    FontSize="14"
+                    Header="Filter"
+                    Icon="{ui:SymbolIcon Filter16}"
+                    ToolTip="Filter Presets">
+                    <ui:MenuItem
+                        Command="{Binding ViewModel.FilterPresetsCommand}"
+                        CommandParameter="{x:Static model:PresetSortCriteria.Ascending}"
+                        Header="Ascending"
+                        Icon="{ui:SymbolIcon TextSortAscending16}"
+                        ToolTip="Filter by ascending order" />
+                    <ui:MenuItem
+                        Command="{Binding ViewModel.FilterPresetsCommand}"
+                        CommandParameter="{x:Static model:PresetSortCriteria.Descending}"
+                        Header="Descending"
+                        Icon="{ui:SymbolIcon TextSortDescending16}"
+                        ToolTip="Filter by descending order" />
+                    <ui:MenuItem
+                        Command="{Binding ViewModel.FilterPresetsCommand}"
+                        CommandParameter="{x:Static model:PresetSortCriteria.Date}"
+                        Header="Date"
+                        Icon="{ui:SymbolIcon CalendarArrowCounterclockwise16}"
+                        ToolTip="Filter by date" />
+                    <ui:MenuItem
+                        Command="{Binding ViewModel.FilterPresetsCommand}"
+                        CommandParameter="{x:Static model:PresetSortCriteria.ActionCount}"
+                        Header="Actions Count"
+                        Icon="{ui:SymbolIcon BorderBottomDouble20}"
+                        ToolTip="Filter by actions count" />
+                </ui:MenuItem>
+            </Menu>
+        </Grid>
+        <!--  No presets text  -->
+        <StackPanel Orientation="Horizontal" Visibility="{Binding ViewModel.HasPresets, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}">
+            <ui:TextBlock FontTypography="Caption" Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}">No presets yet. Add and save a recording to create one.</ui:TextBlock>
+        </StackPanel>
+        <!--  Preset items  -->
+        <local:PresetsItemView />
+    </StackPanel>
+</UserControl>

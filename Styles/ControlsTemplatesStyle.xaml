@@ -1,0 +1,44 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+    <!--  Validation Error Template  -->
+    <ControlTemplate x:Key="ValidationErrorTemplate">
+        <StackPanel>
+            <!--  The actual TextBox (placeholder for adorned element)  -->
+            <!--  Error Message below TextBox  -->
+            <AdornedElementPlaceholder />
+            <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
+                <ui:SymbolIcon
+                    Filled="True"
+                    FontSize="16"
+                    Foreground="{StaticResource ErrorBrush}"
+                    HorizontalAlignment="Center"
+                    Symbol="ErrorCircle16"
+                    ToolTip="{Binding RelativeSource={RelativeSource AncestorType=Adorner}, Path=AdornedElement.(Validation.Errors)[0].ErrorContent}" />
+                <ui:TextBlock
+                    FontSize="12"
+                    Foreground="{StaticResource ErrorBrush}"
+                    HorizontalAlignment="Center"
+                    Margin="5,2,0,0"
+                    Text="{Binding RelativeSource={RelativeSource AncestorType=Adorner}, Path=AdornedElement.(Validation.Errors)[0].ErrorContent}" />
+            </StackPanel>
+        </StackPanel>
+    </ControlTemplate>
+
+    <!--  TextBox Style with Validation  -->
+    <Style
+        BasedOn="{StaticResource {x:Type ui:TextBox}}"
+        TargetType="{x:Type ui:TextBox}"
+        x:Key="TextBoxWithValidation">
+        <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ValidationErrorTemplate}" />
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="true">
+                <Setter Property="BorderBrush" Value="{StaticResource ErrorBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

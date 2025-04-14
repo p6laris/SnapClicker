@@ -1,0 +1,71 @@
+﻿<UserControl
+    d:DataContext="{d:DesignInstance local:RecordingControl,
+                                     IsDesignTimeCreatable=False}"
+    mc:Ignorable="d"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    x:Class="SnapClicker.Controls.RecordingControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SnapClicker.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <Border
+            Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1,1,1,0"
+            CornerRadius="8,8,0,0"
+            Padding="16">
+            <!--  Recording menu  -->
+            <Menu FontSize="14">
+                <ui:MenuItem
+                    Command="{Binding ViewModel.StartRecordingCommand}"
+                    Header="Record"
+                    Icon="{ui:SymbolIcon Record20,
+                                         Filled=False}"
+                    IsEnabled="{Binding ViewModel.IsRecording, Converter={StaticResource BooleanInverterConverter}}"
+                    ToolTip="Start new mouse or key recording." />
+                <ui:MenuItem
+                    Command="{Binding ViewModel.StopRecordingCommand}"
+                    Header="Stop"
+                    Icon="{ui:SymbolIcon RecordStop24,
+                                         Filled=False}"
+                    IsEnabled="{Binding ViewModel.IsRecording}"
+                    ToolTip="Stop the recording." />
+                <ui:MenuItem
+                    Command="{Binding ViewModel.ClearRecordsCommand}"
+                    Header="Clear"
+                    Icon="{ui:SymbolIcon ArrowReset24,
+                                         Filled=True}"
+                    IsEnabled="{Binding ViewModel.HasRecords, Mode=TwoWay}"
+                    ToolTip="Clear the recording." />
+                <Separator />
+                <ui:MenuItem
+                    Command="{Binding ViewModel.SaveRecordsCommand}"
+                    CommandParameter="{Binding ElementName=SaveDialogPresenter}"
+                    Header="Save"
+                    Icon="{ui:SymbolIcon Save24,
+                                         Filled=True}"
+                    IsEnabled="{Binding ViewModel.HasRecords, Mode=TwoWay}"
+                    ToolTip="Save the recording as preset." />
+            </Menu>
+        </Border>
+
+        <!--  Recorded action log  -->
+        <ui:CardExpander
+            CornerRadius="0,0,8,8"
+            Header="Recorded actions"
+            IsEnabled="{Binding ViewModel.HasRecords, Mode=TwoWay}"
+            Margin="0,1,0,0">
+            <ui:ListView
+                ItemTemplate="{StaticResource ActionViewTemplate}"
+                ItemsSource="{Binding ViewModel.RecordsView}"
+                MaxHeight="600"
+                VirtualizingStackPanel.IsVirtualizing="True"
+                VirtualizingStackPanel.VirtualizationMode="Recycling" />
+
+        </ui:CardExpander>
+    </StackPanel>
+</UserControl>
