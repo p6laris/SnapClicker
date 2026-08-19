@@ -18,8 +18,10 @@ namespace SnapClicker.ViewModels.Pages
         [ObservableProperty] private bool _isMouseMoveRecordingSet;
         [ObservableProperty] private bool _isPreciseDelaySet;
         [ObservableProperty] private bool _isTimingJitterEnabled;
+        [ObservableProperty] private bool _isTimingJitterExpanded;
         [ObservableProperty] private double _timingJitterRangeMs = 15;
         [ObservableProperty] private bool _isCoordinateJitterEnabled;
+        [ObservableProperty] private bool _isCoordinateJitterExpanded;
         [ObservableProperty] private double _coordinateJitterRadiusPx = 3;
         [ObservableProperty] private double _actionInterval;
         [ObservableProperty] private string _lastCheckedUpdateTime = string.Empty;
@@ -58,8 +60,10 @@ namespace SnapClicker.ViewModels.Pages
             IsMouseMoveRecordingSet = AppConfig.IsMouseMoveRecordingSet;
             IsPreciseDelaySet = AppConfig.IsPreciseDelaysEnabled;
             IsTimingJitterEnabled = AppConfig.IsTimingJitterEnabled;
+            IsTimingJitterExpanded = AppConfig.IsTimingJitterEnabled;
             TimingJitterRangeMs = AppConfig.TimingJitterRangeMs;
             IsCoordinateJitterEnabled = AppConfig.IsCoordinateJitterEnabled;
+            IsCoordinateJitterExpanded = AppConfig.IsCoordinateJitterEnabled;
             CoordinateJitterRadiusPx = AppConfig.CoordinateJitterRadiusPx;
             ActionInterval = AppConfig.ActionInterval;
             LastCheckedUpdateTime = $"Last Checked {AppConfig.LastCheckedUpdate}";
@@ -149,8 +153,17 @@ namespace SnapClicker.ViewModels.Pages
 
         partial void OnIsTimingJitterEnabledChanged(bool value)
         {
+            IsTimingJitterExpanded = value;
             AppConfig.IsTimingJitterEnabled = value;
             WeakReferenceMessenger.Default.Send(new TimingJitterMessage((value, (int)TimingJitterRangeMs)));
+        }
+
+        partial void OnIsTimingJitterExpandedChanged(bool value)
+        {
+            if (value && !IsTimingJitterEnabled)
+            {
+                IsTimingJitterExpanded = false;
+            }
         }
 
         partial void OnTimingJitterRangeMsChanged(double value)
@@ -161,8 +174,17 @@ namespace SnapClicker.ViewModels.Pages
 
         partial void OnIsCoordinateJitterEnabledChanged(bool value)
         {
+            IsCoordinateJitterExpanded = value;
             AppConfig.IsCoordinateJitterEnabled = value;
             WeakReferenceMessenger.Default.Send(new CoordinateJitterMessage((value, (int)CoordinateJitterRadiusPx)));
+        }
+
+        partial void OnIsCoordinateJitterExpandedChanged(bool value)
+        {
+            if (value && !IsCoordinateJitterEnabled)
+            {
+                IsCoordinateJitterExpanded = false;
+            }
         }
 
         partial void OnCoordinateJitterRadiusPxChanged(double value)

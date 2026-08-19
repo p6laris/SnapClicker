@@ -210,17 +210,17 @@
             Text="Anti-Detection &amp; Humanization" />
 
         <!--  Timing Jitter  -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <ui:CardControl
-                Icon="{ui:SymbolIcon Timer24}"
-                Margin="4"
-                Padding="20,10,20,10">
-                <ui:CardControl.Header>
-                    <StackPanel>
+        <ui:CardExpander
+            Icon="{ui:SymbolIcon Timer24}"
+            IsExpanded="{Binding ViewModel.IsTimingJitterExpanded, Mode=TwoWay}"
+            Margin="4">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
                         <ui:TextBlock
                             FontTypography="BodyStrong"
                             Foreground="{DynamicResource TextFillColorPrimaryBrush}"
@@ -233,37 +233,57 @@
                             Text="Adds random delay variance to simulate natural human finger rhythm."
                             TextWrapping="WrapWithOverflow" />
                     </StackPanel>
-                </ui:CardControl.Header>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <ui:NumberBox
-                        LargeChange="10"
-                        Margin="0,0,12,0"
-                        MaxDecimalPlaces="0"
-                        Maximum="500"
-                        Minimum="1"
-                        PlaceholderText="± ms"
-                        SmallChange="5"
-                        SpinButtonPlacementMode="Compact"
-                        Value="{Binding ViewModel.TimingJitterRangeMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Visibility="{Binding ViewModel.IsTimingJitterEnabled, Converter={StaticResource BoolToVisibilityConverter}}"
-                        Width="120" />
-                    <ui:ToggleSwitch IsChecked="{Binding ViewModel.IsTimingJitterEnabled, Mode=TwoWay}" />
-                </StackPanel>
-            </ui:CardControl>
-        </Grid>
+                    <ui:ToggleSwitch
+                        Grid.Column="1"
+                        IsChecked="{Binding ViewModel.IsTimingJitterEnabled, Mode=TwoWay}"
+                        Margin="0,0,8,0" />
+                </Grid>
+            </ui:CardExpander.Header>
+            <StackPanel>
+                <Border
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1,1,1,0"
+                    CornerRadius="8,8,0,0"
+                    Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <ui:TextBlock
+                                FontTypography="Body"
+                                Text="Variance Range" />
+                            <ui:TextBlock
+                                Appearance="Secondary"
+                                FontTypography="Caption"
+                                Text="Maximum delay variation added or subtracted in milliseconds (± ms)." />
+                        </StackPanel>
+                        <ui:NumberBox
+                            Grid.Column="1"
+                            MaxDecimalPlaces="0"
+                            Maximum="500"
+                            Minimum="1"
+                            PlaceholderText="15"
+                            Value="{Binding ViewModel.TimingJitterRangeMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ui:CardExpander>
 
         <!--  Coordinate Jitter  -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <ui:CardControl
-                Icon="{ui:SymbolIcon Cursor20}"
-                Margin="4"
-                Padding="20,10,20,10">
-                <ui:CardControl.Header>
-                    <StackPanel>
+        <ui:CardExpander
+            Icon="{ui:SymbolIcon Cursor20}"
+            IsExpanded="{Binding ViewModel.IsCoordinateJitterExpanded, Mode=TwoWay}"
+            Margin="4">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
                         <ui:TextBlock
                             FontTypography="BodyStrong"
                             Foreground="{DynamicResource TextFillColorPrimaryBrush}"
@@ -276,24 +296,44 @@
                             Text="Adds a small random pixel offset to avoid clicking identical pixels repeatedly."
                             TextWrapping="WrapWithOverflow" />
                     </StackPanel>
-                </ui:CardControl.Header>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <ui:NumberBox
-                        LargeChange="5"
-                        Margin="0,0,12,0"
-                        MaxDecimalPlaces="0"
-                        Maximum="50"
-                        Minimum="1"
-                        PlaceholderText="± px"
-                        SmallChange="1"
-                        SpinButtonPlacementMode="Compact"
-                        Value="{Binding ViewModel.CoordinateJitterRadiusPx, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Visibility="{Binding ViewModel.IsCoordinateJitterEnabled, Converter={StaticResource BoolToVisibilityConverter}}"
-                        Width="120" />
-                    <ui:ToggleSwitch IsChecked="{Binding ViewModel.IsCoordinateJitterEnabled, Mode=TwoWay}" />
-                </StackPanel>
-            </ui:CardControl>
-        </Grid>
+                    <ui:ToggleSwitch
+                        Grid.Column="1"
+                        IsChecked="{Binding ViewModel.IsCoordinateJitterEnabled, Mode=TwoWay}"
+                        Margin="0,0,8,0" />
+                </Grid>
+            </ui:CardExpander.Header>
+            <StackPanel>
+                <Border
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1,1,1,0"
+                    CornerRadius="8,8,0,0"
+                    Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <ui:TextBlock
+                                FontTypography="Body"
+                                Text="Offset Radius" />
+                            <ui:TextBlock
+                                Appearance="Secondary"
+                                FontTypography="Caption"
+                                Text="Maximum pixel radius offset applied around target coordinates (± px)." />
+                        </StackPanel>
+                        <ui:NumberBox
+                            Grid.Column="1"
+                            MaxDecimalPlaces="0"
+                            Maximum="50"
+                            Minimum="1"
+                            PlaceholderText="3"
+                            Value="{Binding ViewModel.CoordinateJitterRadiusPx, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ui:CardExpander>
 
         <ui:TextBlock
             FontTypography="BodyStrong"
