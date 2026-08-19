@@ -93,6 +93,9 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
     [RelayCommand]
     public async Task StartRecording()
     {
+        if (IsRecording)
+            return;
+
         if (_recordedList.Count > 0)
             ClearRecords();
 
@@ -105,7 +108,7 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
             _countdownWindow.Show();
             for (int sec = AppConfig.CountdownSeconds; sec >= 1; sec--)
             {
-                if ((Methods.GetAsyncKeyState(0x1B) & 0x8000) != 0)
+                if ((Methods.GetAsyncKeyState(Constants.VkEscape) & Constants.KeyDownMask) != 0)
                 {
                     _countdownWindow.Hide();
                     ChangeWindowsState(WindowState.Normal);
@@ -117,7 +120,7 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
                 await Task.Delay(1000);
             }
 
-            if ((Methods.GetAsyncKeyState(0x1B) & 0x8000) != 0)
+            if ((Methods.GetAsyncKeyState(Constants.VkEscape) & Constants.KeyDownMask) != 0)
             {
                 _countdownWindow.Hide();
                 ChangeWindowsState(WindowState.Normal);
@@ -235,12 +238,9 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
         var mainWindow = Application.Current.MainWindow;
         if (mainWindow != null)
         {
-            if (state == WindowState.Normal)
+            if (state == WindowState.Normal && mainWindow is MainWindow mw)
             {
-                mainWindow.WindowState = WindowState.Normal;
-                mainWindow.Show();
-                mainWindow.Activate();
-                Methods.SetForegroundWindow(new WindowInteropHelper(mainWindow).Handle);
+                mw.RestoreFromTray();
             }
             else
             {

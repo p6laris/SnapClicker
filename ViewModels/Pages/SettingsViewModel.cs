@@ -2,7 +2,7 @@ using MessageBox = Wpf.Ui.Controls.MessageBox;
 
 namespace SnapClicker.ViewModels.Pages
 {
-    public partial class SettingsViewModel : ObservableObject, INavigationAware
+    public partial class SettingsViewModel : ObservableObject, INavigationAware, IDisposable
     {
         private readonly IContentDialogService _dialogService;
         private readonly UpdateManager _updateManager;
@@ -107,7 +107,7 @@ namespace SnapClicker.ViewModels.Pages
             {
                 IsProgressing = true;
                 _updateInfo = await _updateManager.CheckForUpdatesAsync().ConfigureAwait(true);
-                if (_updateInfo is null)
+                if (_updateInfo?.TargetFullRelease is null)
                 {
                     IsUpdateAvailable = false;
                     IsReleaseNotesAvailable = true;
@@ -434,6 +434,11 @@ namespace SnapClicker.ViewModels.Pages
         {
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             return version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "1.0.0";
+        }
+
+        public void Dispose()
+        {
+            ThemesView?.Dispose();
         }
     }
 }

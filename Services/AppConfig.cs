@@ -169,10 +169,14 @@ namespace SnapClicker.Services
                 {
                     var json = File.ReadAllText(ConfigFilePath);
                     _cache = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
-                    _isCacheLoaded = true;
                 }
                 catch
                 {
+                    _cache = new();
+                }
+                finally
+                {
+                    _isCacheLoaded = true;
                 }
             }
         }

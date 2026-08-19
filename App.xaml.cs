@@ -101,7 +101,7 @@ namespace SnapClicker
                 services.AddSingleton<RecordPageViewModel>();
                 
                 //Repositories services
-                services.AddSingleton<SnapClickerDbContext>();
+                services.AddTransient<SnapClickerDbContext>();
                 services.AddSingleton<IPresetRepository, PresetRepository>();
                 services.AddSingleton<IHotKeyManager, HotKeyManager>();
                 services.AddSingleton<KeyBindingDialogViewModel>();
@@ -153,11 +153,20 @@ namespace SnapClicker
         /// </summary>
         private async void OnExit(object sender, ExitEventArgs e)
         {
-            Log.Information("SnapClicker application shutting down.");
-
-            await _host.StopAsync();
-            _host.Dispose();
-            Log.CloseAndFlush();
+            try
+            {
+                Log.Information("SnapClicker application shutting down.");
+                await _host.StopAsync(TimeSpan.FromSeconds(5));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error during application shutdown.");
+            }
+            finally
+            {
+                _host.Dispose();
+                Log.CloseAndFlush();
+            }
         }
 
         /// <summary>

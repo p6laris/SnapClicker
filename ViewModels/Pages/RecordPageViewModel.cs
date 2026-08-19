@@ -73,27 +73,44 @@ namespace SnapClicker.ViewModels.Pages
         
         private async void OnStartOrStop()
         {
-            // If simulation is currently running, ALWAYS stop immediately!
-            if (IsSimulationRunning)
+            try
             {
-                StopActions();
-                return;
-            }
+                // If simulation is currently running, ALWAYS stop immediately!
+                if (IsSimulationRunning)
+                {
+                    StopActions();
+                    return;
+                }
 
-            var isRecordPageActive = _navigationView.SelectedItem?.Content is string content && content == "Record";
-            if (isRecordPageActive || SelectedPreset != null)
+                var isRecordPageActive = _navigationView.SelectedItem?.Content is string content && content == "Record";
+                if (!isRecordPageActive)
+                    return;
+
+                if (SelectedPreset != null)
+                {
+                    await PlayActionsAsync();
+                }
+            }
+            catch (Exception ex)
             {
-                await PlayActionsAsync();
+                Log.Error(ex, "Error in playback hotkey handler.");
             }
         }
 
         [RelayCommand]
         public async Task PlayActionsAsync()
         {
+            if (IsSimulationRunning)
+                return;
+
             if (SelectedPreset?.RecordedActions is { Count: > 0 } rawActions)
             {
                 var sortedActions = rawActions.OrderBy(x => x.Timestamp).ToList();
                 IsSimulationRunning = true;
+
+                // Cancel and dispose previous token source if any
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource?.Dispose();
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 try
@@ -145,12 +162,9 @@ namespace SnapClicker.ViewModels.Pages
             var mainWindow = Application.Current.MainWindow;
             if (mainWindow != null)
             {
-                if (state == WindowState.Normal)
+                if (state == WindowState.Normal && mainWindow is MainWindow mw)
                 {
-                    mainWindow.WindowState = WindowState.Normal;
-                    mainWindow.Show();
-                    mainWindow.Activate();
-                    Methods.SetForegroundWindow(new WindowInteropHelper(mainWindow).Handle);
+                    mw.RestoreFromTray();
                 }
                 else
                 {
@@ -161,11 +175,12 @@ namespace SnapClicker.ViewModels.Pages
         
         public void Dispose()
         {
-            if(_cancellationTokenSource is not null)
-                _cancellationTokenSource.Dispose();
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
             
             _hotKeyManager.UnregisterHotKey(_hotkeyId);
             WeakReferenceMessenger.Default.Unregister<PlayAndStopRecordHotKeyMessage>(this);
+            WeakReferenceMessenger.Default.Unregister<PlaybackSpeedMessage>(this);
         }
     }
 }

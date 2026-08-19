@@ -37,4 +37,7 @@ public static class Constants
         public const int VkEscape = 0x1B;
         public const int VkReturn = 0x0D;
         public const int VkSpace = 0x20;
+
+        // GetAsyncKeyState bitmask
+        public const int KeyDownMask = 0x8000;
 }
