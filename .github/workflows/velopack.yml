@@ -1,4 +1,4 @@
-﻿name: Release & Package SnapClicker (Velopack)
+name: Release & Package SnapClicker (Velopack)
 
 on:
   push:
@@ -75,9 +75,10 @@ jobs:
                    --packTitle "SnapClicker" `
                    --icon ./SnapClicker1024.ico `
                    --releaseNotes RELEASE_NOTES.md `
-                   --output ./Releases
+                   --outputDir ./Releases
           vpk upload github --repoUrl https://github.com/p6laris/SnapClicker `
                             --publish `
                             --releaseName "SnapClicker v${{ steps.version_step.outputs.version }}" `
                             --tag "v${{ steps.version_step.outputs.version }}" `
+                            --outputDir ./Releases `
                             --token ${{ secrets.GITHUB_TOKEN }}
