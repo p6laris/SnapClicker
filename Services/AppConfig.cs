@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace SnapClicker.Services
 {
@@ -82,6 +82,26 @@ namespace SnapClicker.Services
         {
             get => double.TryParse(GetAppSetting("ActionInterval"), out var value) ? value : 1;
             set => UpdateAppSetting("ActionInterval", value.ToString());
+        }
+        public static bool IsTimingJitterEnabled
+        {
+            get => bool.TryParse(GetAppSetting("IsTimingJitterEnabled"), out var value) && value;
+            set => UpdateAppSetting("IsTimingJitterEnabled", value.ToString());
+        }
+        public static int TimingJitterRangeMs
+        {
+            get => int.TryParse(GetAppSetting("TimingJitterRangeMs"), out var value) ? value : 15;
+            set => UpdateAppSetting("TimingJitterRangeMs", value.ToString());
+        }
+        public static bool IsCoordinateJitterEnabled
+        {
+            get => bool.TryParse(GetAppSetting("IsCoordinateJitterEnabled"), out var value) && value;
+            set => UpdateAppSetting("IsCoordinateJitterEnabled", value.ToString());
+        }
+        public static int CoordinateJitterRadiusPx
+        {
+            get => int.TryParse(GetAppSetting("CoordinateJitterRadiusPx"), out var value) ? value : 3;
+            set => UpdateAppSetting("CoordinateJitterRadiusPx", value.ToString());
         }
         public static bool IsMouseMoveRecordingSet
         {

@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Title="SettingsPage"
     d:DataContext="{d:DesignInstance local:SettingsPage,
@@ -202,9 +202,100 @@
                 </Grid>
             </ui:CardControl>
         </Grid>
+
+        <!--  Anti-Detection & Humanization  -->
         <ui:TextBlock
             FontTypography="BodyStrong"
-            Margin="4,10,0,0"
+            Margin="4,14,0,0"
+            Text="Anti-Detection &amp; Humanization" />
+
+        <!--  Timing Jitter  -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon ShakingHand20}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Timing Jitter (Random Delay)"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="Adds random delay variance to simulate natural human finger rhythm."
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <ui:NumberBox
+                        LargeChange="10"
+                        Margin="0,0,12,0"
+                        MaxDecimalPlaces="0"
+                        Maximum="500"
+                        Minimum="1"
+                        PlaceholderText="± ms"
+                        SmallChange="5"
+                        Value="{Binding ViewModel.TimingJitterRangeMs, UpdateSourceTrigger=PropertyChanged}"
+                        Visibility="{Binding ViewModel.IsTimingJitterEnabled, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Width="100" />
+                    <ui:ToggleSwitch IsChecked="{Binding ViewModel.IsTimingJitterEnabled}" />
+                </StackPanel>
+            </ui:CardControl>
+        </Grid>
+
+        <!--  Coordinate Jitter  -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon LocationTarget24}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Coordinate Jitter (Random Offset)"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="Adds a small random pixel offset to avoid clicking identical pixels repeatedly."
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <ui:NumberBox
+                        LargeChange="5"
+                        Margin="0,0,12,0"
+                        MaxDecimalPlaces="0"
+                        Maximum="50"
+                        Minimum="1"
+                        PlaceholderText="± px"
+                        SmallChange="1"
+                        Value="{Binding ViewModel.CoordinateJitterRadiusPx, UpdateSourceTrigger=PropertyChanged}"
+                        Visibility="{Binding ViewModel.IsCoordinateJitterEnabled, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Width="100" />
+                    <ui:ToggleSwitch IsChecked="{Binding ViewModel.IsCoordinateJitterEnabled}" />
+                </StackPanel>
+            </ui:CardControl>
+        </Grid>
+
+        <ui:TextBlock
+            FontTypography="BodyStrong"
+            Margin="4,14,0,0"
             Text="Key shortcuts" />
         <!--  Recording shortcut  -->
         <Grid>

@@ -17,6 +17,10 @@ namespace SnapClicker.ViewModels.Pages
         [ObservableProperty] private KeyBindingModel _playAndStopBinding = new(Key.None, ModifierKeys.None);
         [ObservableProperty] private bool _isMouseMoveRecordingSet;
         [ObservableProperty] private bool _isPreciseDelaySet;
+        [ObservableProperty] private bool _isTimingJitterEnabled;
+        [ObservableProperty] private int _timingJitterRangeMs = 15;
+        [ObservableProperty] private bool _isCoordinateJitterEnabled;
+        [ObservableProperty] private int _coordinateJitterRadiusPx = 3;
         [ObservableProperty] private double _actionInterval;
         [ObservableProperty] private string _lastCheckedUpdateTime = string.Empty;
         [ObservableProperty] private bool _isUpdateAvailable;
@@ -53,6 +57,10 @@ namespace SnapClicker.ViewModels.Pages
             PlayAndStopBinding = AppConfig.PlayAndStopKeyBinding;
             IsMouseMoveRecordingSet = AppConfig.IsMouseMoveRecordingSet;
             IsPreciseDelaySet = AppConfig.IsPreciseDelaysEnabled;
+            IsTimingJitterEnabled = AppConfig.IsTimingJitterEnabled;
+            TimingJitterRangeMs = AppConfig.TimingJitterRangeMs;
+            IsCoordinateJitterEnabled = AppConfig.IsCoordinateJitterEnabled;
+            CoordinateJitterRadiusPx = AppConfig.CoordinateJitterRadiusPx;
             ActionInterval = AppConfig.ActionInterval;
             LastCheckedUpdateTime = $"Last Checked {AppConfig.LastCheckedUpdate}";
         }
@@ -137,6 +145,30 @@ namespace SnapClicker.ViewModels.Pages
         {
             AppConfig.IsPreciseDelaysEnabled = value;
             WeakReferenceMessenger.Default.Send(new PreciseDelayMessage(value));
+        }
+
+        partial void OnIsTimingJitterEnabledChanged(bool value)
+        {
+            AppConfig.IsTimingJitterEnabled = value;
+            WeakReferenceMessenger.Default.Send(new TimingJitterMessage((value, TimingJitterRangeMs)));
+        }
+
+        partial void OnTimingJitterRangeMsChanged(int value)
+        {
+            AppConfig.TimingJitterRangeMs = value;
+            WeakReferenceMessenger.Default.Send(new TimingJitterMessage((IsTimingJitterEnabled, value)));
+        }
+
+        partial void OnIsCoordinateJitterEnabledChanged(bool value)
+        {
+            AppConfig.IsCoordinateJitterEnabled = value;
+            WeakReferenceMessenger.Default.Send(new CoordinateJitterMessage((value, CoordinateJitterRadiusPx)));
+        }
+
+        partial void OnCoordinateJitterRadiusPxChanged(int value)
+        {
+            AppConfig.CoordinateJitterRadiusPx = value;
+            WeakReferenceMessenger.Default.Send(new CoordinateJitterMessage((IsCoordinateJitterEnabled, value)));
         }
         partial void OnCurrentThemeChanged(ApplicationTheme value)
         {

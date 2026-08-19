@@ -9,6 +9,10 @@ namespace SnapClicker.Services
         private readonly Stopwatch _stopwatch;
         private double _interval;
         private bool _isPreciseDelaysEnabled;
+        private bool _isTimingJitterEnabled;
+        private int _timingJitterRangeMs;
+        private bool _isCoordinateJitterEnabled;
+        private int _coordinateJitterRadiusPx;
 
         public InputSimulatorService(ILogger<InputSimulatorService> logger)
         {
@@ -17,18 +21,35 @@ namespace SnapClicker.Services
             
             _interval = AppConfig.ActionInterval;
             _isPreciseDelaysEnabled = AppConfig.IsPreciseDelaysEnabled;
+            _isTimingJitterEnabled = AppConfig.IsTimingJitterEnabled;
+            _timingJitterRangeMs = AppConfig.TimingJitterRangeMs;
+            _isCoordinateJitterEnabled = AppConfig.IsCoordinateJitterEnabled;
+            _coordinateJitterRadiusPx = AppConfig.CoordinateJitterRadiusPx;
             
             WeakReferenceMessenger.Default.Register<ActionIntervalMessage>(this, (r,m) 
                 => _interval = m.Value );
             
             WeakReferenceMessenger.Default.Register<PreciseDelayMessage>(this, (r,m) 
                 => _isPreciseDelaysEnabled = m.Value );
+
+            WeakReferenceMessenger.Default.Register<TimingJitterMessage>(this, (r, m) =>
+            {
+                _isTimingJitterEnabled = m.Value.Enabled;
+                _timingJitterRangeMs = m.Value.RangeMs;
+            });
+
+            WeakReferenceMessenger.Default.Register<CoordinateJitterMessage>(this, (r, m) =>
+            {
+                _isCoordinateJitterEnabled = m.Value.Enabled;
+                _coordinateJitterRadiusPx = m.Value.RadiusPx;
+            });
         }
         
         /// <inheritdoc />
         public async ValueTask Simulate(List<RecordedAction> actions, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting input simulation for {Count} actions.", actions.Count);
+            _logger.LogInformation("Starting input simulation for {Count} actions (TimingJitter={TimingJitter}, CoordJitter={CoordJitter}).", 
+                actions.Count, _isTimingJitterEnabled, _isCoordinateJitterEnabled);
             var baseTime = actions.FirstOrDefault(a => !a.IsBurstMode)?.Timestamp ?? TimeSpan.Zero;
             _stopwatch.Restart();
 
@@ -49,12 +70,22 @@ namespace SnapClicker.Services
                 if (action.IsBurstMode)
                 {
                     var delayMs = action.Timestamp.TotalMilliseconds;
+                    if (_isTimingJitterEnabled && delayMs > 0)
+                    {
+                        int jitter = Random.Shared.Next(-_timingJitterRangeMs, _timingJitterRangeMs + 1);
+                        delayMs = Math.Max(1, delayMs + jitter);
+                    }
                     if (delayMs > 0)
                         await WaitDurationAsync(delayMs, cancellationToken);
                 }
                 else
                 {
                     var targetDelayMs = (action.Timestamp - baseTime).TotalMilliseconds;
+                    if (_isTimingJitterEnabled && targetDelayMs > 0)
+                    {
+                        int jitter = Random.Shared.Next(-_timingJitterRangeMs, _timingJitterRangeMs + 1);
+                        targetDelayMs = Math.Max(1, targetDelayMs + jitter);
+                    }
                     await WaitAbsoluteAsync(targetDelayMs, cancellationToken);
                 }
 
@@ -64,7 +95,15 @@ namespace SnapClicker.Services
                 ExecuteAction(action);
 
                 if (_interval > 0)
-                    await WaitDurationAsync(_interval, cancellationToken);
+                {
+                    var intervalMs = _interval;
+                    if (_isTimingJitterEnabled)
+                    {
+                        int jitter = Random.Shared.Next(-_timingJitterRangeMs, _timingJitterRangeMs + 1);
+                        intervalMs = Math.Max(1, intervalMs + jitter);
+                    }
+                    await WaitDurationAsync(intervalMs, cancellationToken);
+                }
             }
 
             _stopwatch.Stop();
@@ -127,37 +166,48 @@ namespace SnapClicker.Services
         }
         private void ExecuteAction(RecordedAction action)
         {
+            int x = action.X;
+            int y = action.Y;
+
+            if (_isCoordinateJitterEnabled && action.Type is not (ActionType.KeyDown or ActionType.KeyUp))
+            {
+                int offsetX = Random.Shared.Next(-_coordinateJitterRadiusPx, _coordinateJitterRadiusPx + 1);
+                int offsetY = Random.Shared.Next(-_coordinateJitterRadiusPx, _coordinateJitterRadiusPx + 1);
+                x = Math.Clamp(x + offsetX, 0, (int)SystemParameters.VirtualScreenWidth);
+                y = Math.Clamp(y + offsetY, 0, (int)SystemParameters.VirtualScreenHeight);
+            }
+
             switch (action.Type)
             {
                 case ActionType.LeftMouseClick:
-                    MouseHook.SimulateLeftClick(action.X, action.Y);
+                    MouseHook.SimulateLeftClick(x, y);
                     break;
                 case ActionType.LeftMouseDown:
-                    MouseHook.SimulateLeftDown(action.X, action.Y);
+                    MouseHook.SimulateLeftDown(x, y);
                     break;
                 case ActionType.LeftMouseUp:
-                    MouseHook.SimulateLeftUp(action.X, action.Y);
+                    MouseHook.SimulateLeftUp(x, y);
                     break;
                 case ActionType.RightMouseClick:
-                    MouseHook.SimulateRightClick(action.X, action.Y);
+                    MouseHook.SimulateRightClick(x, y);
                     break;
                 case ActionType.RightMouseDown:
-                    MouseHook.SimulateRightDown(action.X, action.Y);
+                    MouseHook.SimulateRightDown(x, y);
                     break;
                 case ActionType.RightMouseUp:
-                    MouseHook.SimulateRightUp(action.X, action.Y);
+                    MouseHook.SimulateRightUp(x, y);
                     break;
                 case ActionType.MiddleMouseClick:
-                    MouseHook.SimulateMiddleClick(action.X, action.Y);
+                    MouseHook.SimulateMiddleClick(x, y);
                     break;
                 case ActionType.MiddleMouseDown:
-                    MouseHook.SimulateMiddleDown(action.X, action.Y);
+                    MouseHook.SimulateMiddleDown(x, y);
                     break;
                 case ActionType.MiddleMouseUp:
-                    MouseHook.SimulateMiddleUp(action.X, action.Y);
+                    MouseHook.SimulateMiddleUp(x, y);
                     break;
                 case ActionType.MouseMove:
-                    Methods.SetCursorPos(action.X, action.Y);
+                    Methods.SetCursorPos(x, y);
                     break;
                 case ActionType.KeyDown:
                     KeyboardHook.SimulateKeyDown(action.Key);
@@ -177,6 +227,8 @@ namespace SnapClicker.Services
         {
             WeakReferenceMessenger.Default.Unregister<ActionIntervalMessage>(this);
             WeakReferenceMessenger.Default.Unregister<PreciseDelayMessage>(this);
+            WeakReferenceMessenger.Default.Unregister<TimingJitterMessage>(this);
+            WeakReferenceMessenger.Default.Unregister<CoordinateJitterMessage>(this);
         }
     }
     
