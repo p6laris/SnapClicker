@@ -18,7 +18,7 @@ public static class Methods
         public static extern uint SendInput(uint nInputs, InputStruct[] pInputs, int cbSize);
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern uint SendInput(uint nInputs, [In] ReadOnlySpan<InputStruct> pInputs, int cbSize);
+        public static extern uint SendInput(uint nInputs, [In] ref readonly InputStruct pInputs, int cbSize);
 
         [DllImport("user32.dll")]
         public static extern bool SetCursorPos(int x, int y);

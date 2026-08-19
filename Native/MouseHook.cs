@@ -76,7 +76,7 @@ namespace SnapClicker.Native
         {
             Methods.SetCursorPos(x, y);
 
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[]
+            var inputs = new[]
             {
                 CreateMouseInput(Constants.MouseeventfLeftdown),
                 CreateMouseInput(Constants.MouseeventfLeftup)
@@ -88,22 +88,22 @@ namespace SnapClicker.Native
         public static void SimulateLeftDown(int x, int y)
         {
             Methods.SetCursorPos(x, y);
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[] { CreateMouseInput(Constants.MouseeventfLeftdown) };
-            Methods.SendInput(1, inputs, Marshal.SizeOf<InputStruct>());
+            var input = CreateMouseInput(Constants.MouseeventfLeftdown);
+            Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
         public static void SimulateLeftUp(int x, int y)
         {
             Methods.SetCursorPos(x, y);
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[] { CreateMouseInput(Constants.MouseeventfLeftup) };
-            Methods.SendInput(1, inputs, Marshal.SizeOf<InputStruct>());
+            var input = CreateMouseInput(Constants.MouseeventfLeftup);
+            Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
         public static void SimulateRightClick(int x, int y)
         {
             Methods.SetCursorPos(x, y);
 
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[]
+            var inputs = new[]
             {
                 CreateMouseInput(Constants.MouseeventfRightdown),
                 CreateMouseInput(Constants.MouseeventfRightup)
@@ -115,22 +115,22 @@ namespace SnapClicker.Native
         public static void SimulateRightDown(int x, int y)
         {
             Methods.SetCursorPos(x, y);
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[] { CreateMouseInput(Constants.MouseeventfRightdown) };
-            Methods.SendInput(1, inputs, Marshal.SizeOf<InputStruct>());
+            var input = CreateMouseInput(Constants.MouseeventfRightdown);
+            Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
         public static void SimulateRightUp(int x, int y)
         {
             Methods.SetCursorPos(x, y);
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[] { CreateMouseInput(Constants.MouseeventfRightup) };
-            Methods.SendInput(1, inputs, Marshal.SizeOf<InputStruct>());
+            var input = CreateMouseInput(Constants.MouseeventfRightup);
+            Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
         public static void SimulateMiddleClick(int x, int y)
         {
             Methods.SetCursorPos(x, y);
 
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[]
+            var inputs = new[]
             {
                 CreateMouseInput(Constants.MouseeventfMiddledown),
                 CreateMouseInput(Constants.MouseeventfMiddleup)
@@ -142,15 +142,15 @@ namespace SnapClicker.Native
         public static void SimulateMiddleDown(int x, int y)
         {
             Methods.SetCursorPos(x, y);
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[] { CreateMouseInput(Constants.MouseeventfMiddledown) };
-            Methods.SendInput(1, inputs, Marshal.SizeOf<InputStruct>());
+            var input = CreateMouseInput(Constants.MouseeventfMiddledown);
+            Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
         public static void SimulateMiddleUp(int x, int y)
         {
             Methods.SetCursorPos(x, y);
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[] { CreateMouseInput(Constants.MouseeventfMiddleup) };
-            Methods.SendInput(1, inputs, Marshal.SizeOf<InputStruct>());
+            var input = CreateMouseInput(Constants.MouseeventfMiddleup);
+            Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
         public static void SimulateMouseMove(int x, int y)

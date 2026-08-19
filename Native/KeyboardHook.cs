@@ -57,15 +57,15 @@ namespace SnapClicker.Native
         public static void SimulateKeyDown(Key key)
         {
             int vk = KeyInterop.VirtualKeyFromKey(key);
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[] { CreateKeyboardInput((ushort)vk, 0) };
-            Methods.SendInput(1, inputs, Marshal.SizeOf<InputStruct>());
+            var input = CreateKeyboardInput((ushort)vk, 0);
+            Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
         public static void SimulateKeyUp(Key key)
         {
             int vk = KeyInterop.VirtualKeyFromKey(key);
-            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[] { CreateKeyboardInput((ushort)vk, Constants.KeyeventfKeyup) };
-            Methods.SendInput(1, inputs, Marshal.SizeOf<InputStruct>());
+            var input = CreateKeyboardInput((ushort)vk, Constants.KeyeventfKeyup);
+            Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
         private static InputStruct CreateKeyboardInput(ushort vk, uint flags)
