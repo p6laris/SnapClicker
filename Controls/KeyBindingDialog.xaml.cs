@@ -1,9 +1,9 @@
-﻿namespace SnapClicker.Controls;
+namespace SnapClicker.Controls;
 
 public partial class KeyBindingDialog : ContentDialog 
 {
     public KeyBindingDialogViewModel ViewModel { get; }
-    public KeyBindingDialog(ContentPresenter? presenter) : base(presenter)
+    public KeyBindingDialog(ContentDialogHost? presenter) : base(presenter)
     {
         InitializeComponent();
         ViewModel = App.Services.GetRequiredService<KeyBindingDialogViewModel>();

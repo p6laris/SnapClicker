@@ -156,7 +156,7 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
     
     private async ValueTask SavePreset(Preset preset)
     {
-        var saveDialog = new SaveDialog(_contentDialogService.GetDialogHost(), preset);
+        var saveDialog = new SaveDialog(_contentDialogService.GetDialogHostEx(), preset);
         if (await saveDialog.ShowAsync() != ContentDialogResult.Primary ) 
             return;
         

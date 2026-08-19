@@ -110,7 +110,7 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
 
     private async ValueTask SavePresetAsync(Preset preset)
     {
-        var saveDialog = new SaveDialog(_dialogService.GetDialogHost(), preset);
+        var saveDialog = new SaveDialog(_dialogService.GetDialogHostEx(), preset);
         var result = await saveDialog.ShowAsync();
 
         if (result != ContentDialogResult.Primary )

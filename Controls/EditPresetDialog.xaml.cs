@@ -1,9 +1,9 @@
-﻿namespace SnapClicker.Controls;
+namespace SnapClicker.Controls;
 
 public partial class EditPresetDialog : ContentDialog 
 {
     public Preset Preset { get; }
-    public EditPresetDialog(ContentPresenter? presenter, Preset preset) : base(presenter)
+    public EditPresetDialog(ContentDialogHost? host, Preset preset) : base(host)
     {
         InitializeComponent();
         Preset = preset;

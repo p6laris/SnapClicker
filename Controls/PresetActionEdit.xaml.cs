@@ -1,9 +1,9 @@
-﻿namespace SnapClicker.Controls;
+namespace SnapClicker.Controls;
 
 public partial class PresetActionEdit : ContentDialog 
 {
     public PresetActionEditViewModel ViewModel { get; }
-    public PresetActionEdit(ContentPresenter? contentPresenter, RecordedAction action) : base(contentPresenter)
+    public PresetActionEdit(ContentDialogHost? contentPresenter, RecordedAction action) : base(contentPresenter)
     {
         InitializeComponent();
         ViewModel = App.Services.GetRequiredService<PresetActionEditViewModel>();

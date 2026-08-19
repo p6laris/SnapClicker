@@ -86,7 +86,7 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
     public async Task EditPresetAsync(PresetsDto presetsDto)
     {
         var preset = presetsDto.ToPreset();
-        var result = await new EditPresetDialog(_dialogService.GetDialogHost(), preset).ShowAsync();
+        var result = await new EditPresetDialog(_dialogService.GetDialogHostEx(), preset).ShowAsync();
         
         if (result != ContentDialogResult.Primary) 
             return;
@@ -125,7 +125,7 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
     [RelayCommand]
     public async Task EditAction(RecordedAction action)
     {
-        var result = await new PresetActionEdit(_dialogService.GetDialogHost(), action).ShowAsync();
+        var result = await new PresetActionEdit(_dialogService.GetDialogHostEx(), action).ShowAsync();
         if (result != ContentDialogResult.Primary) return;
 
         try

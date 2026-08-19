@@ -1,4 +1,4 @@
-﻿<ui:FluentWindow
+<ui:FluentWindow
     ExtendsContentIntoTitleBar="True"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Title="{Binding ViewModel.ApplicationTitle, Mode=OneWay}"
@@ -60,6 +60,6 @@
             </ui:NavigationView.ContentOverlay>
         </ui:NavigationView>
 
-        <ContentPresenter Grid.Row="0" x:Name="RootContentDialog" />
+        <ui:ContentDialogHost Grid.Row="0" x:Name="RootContentDialog" />
     </Grid>
 </ui:FluentWindow>

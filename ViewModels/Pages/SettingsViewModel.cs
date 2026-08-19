@@ -159,7 +159,7 @@ namespace SnapClicker.ViewModels.Pages
         [RelayCommand]
         public async Task ChangeStartAndStopKeyBinding()
         {
-            var dialogResult = await new KeyBindingDialog(_dialogService.GetDialogHost()).ShowAsync();
+            var dialogResult = await new KeyBindingDialog(_dialogService.GetDialogHostEx()).ShowAsync();
             var viewModel = App.Services.GetRequiredService<KeyBindingDialogViewModel>();
 
             if (dialogResult != ContentDialogResult.Primary)
@@ -182,7 +182,7 @@ namespace SnapClicker.ViewModels.Pages
         [RelayCommand]
         public async Task ChangePlayAndStopKeyBinding()
         {
-            var dialogResult = await new KeyBindingDialog(_dialogService.GetDialogHost()).ShowAsync();
+            var dialogResult = await new KeyBindingDialog(_dialogService.GetDialogHostEx()).ShowAsync();
             var viewModel = App.Services.GetRequiredService<KeyBindingDialogViewModel>();
 
             if (dialogResult != ContentDialogResult.Primary)
