@@ -3,7 +3,9 @@ namespace SnapClicker.Services;
 /// <summary>Tracks mouse movement positions.</summary>
 public class MouseTrackerService : IMouseTrackerService, IDisposable
 {
+    private static readonly TimeSpan InputCooldown = TimeSpan.FromMilliseconds(300);
     private readonly MouseHook _mouseHook = new();
+    private long _startTicks;
     
     /// <inheritdoc />
     public event Action<int, int>? OnMouseMove;
@@ -11,6 +13,7 @@ public class MouseTrackerService : IMouseTrackerService, IDisposable
     /// <inheritdoc />
     public void StartTracking()
     {
+        _startTicks = Stopwatch.GetTimestamp();
         _mouseHook.OnMouseAction -= HandleMouseAction;
         _mouseHook.OnMouseAction += HandleMouseAction;
         _mouseHook.Start();
@@ -25,7 +28,10 @@ public class MouseTrackerService : IMouseTrackerService, IDisposable
 
     private void HandleMouseAction(int x, int y, ActionType action, TimeSpan timestamp)
     {
-        if (action != ActionType.MouseMove)
+        if (Stopwatch.GetElapsedTime(_startTicks) < InputCooldown)
+            return;
+
+        if (action is ActionType.LeftMouseDown or ActionType.RightMouseDown or ActionType.MiddleMouseDown)
             OnMouseMove?.Invoke(x, y);
     }
 

@@ -2,7 +2,9 @@ namespace SnapClicker.Services;
 
 public class KeyboardTrackerService : IKeyboardTrackerService, IDisposable
 {
+    private static readonly TimeSpan InputCooldown = TimeSpan.FromMilliseconds(300);
     private readonly KeyboardHook _keyboardHook = new();
+    private long _startTicks;
     
     /// <inheritdoc />
     public event Action<Key>? OnKeyDownOrUp;
@@ -10,6 +12,7 @@ public class KeyboardTrackerService : IKeyboardTrackerService, IDisposable
     /// <inheritdoc />
     public void StartTracking()
     {
+        _startTicks = Stopwatch.GetTimestamp();
         _keyboardHook.OnKeyDown -= HandleKeyDown;
         _keyboardHook.OnKeyDown += HandleKeyDown;
         _keyboardHook.Start();
@@ -24,6 +27,9 @@ public class KeyboardTrackerService : IKeyboardTrackerService, IDisposable
 
     private void HandleKeyDown(Key key, TimeSpan timestamp)
     {
+        if (Stopwatch.GetElapsedTime(_startTicks) < InputCooldown)
+            return;
+
         OnKeyDownOrUp?.Invoke(key);
     }
 

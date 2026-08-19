@@ -30,4 +30,11 @@ public static class Constants
         // SendInput constants
         public const int InputMouse = 0;
         public const int InputKeyboard = 1;
+
+        // Virtual Key Codes
+        public const int VkLbutton = 0x01;
+        public const int VkRbutton = 0x02;
+        public const int VkEscape = 0x1B;
+        public const int VkReturn = 0x0D;
+        public const int VkSpace = 0x20;
 }

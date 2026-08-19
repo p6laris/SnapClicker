@@ -106,8 +106,8 @@ public class SystemTrayService : ISystemTrayService
     {
         if (_mainWindow == null) return;
 
-        _mainWindow.Show();
         _mainWindow.WindowState = WindowState.Normal;
+        _mainWindow.Show();
         _mainWindow.Activate();
         Methods.SetForegroundWindow(_hwnd);
     }

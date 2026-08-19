@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.ViewModels.Controls;
+namespace SnapClicker.ViewModels.Controls;
 
 public partial class PresetActionEditViewModel : ObservableObject
 {
@@ -24,17 +24,17 @@ public partial class PresetActionEditViewModel : ObservableObject
     public void RecordPosition()
     {
         MinimizeMainWindow();
-        _trackerManager.StartMouseTracking(TrackMouseCursor);
         _trackerWindow.Show();
+        _trackerManager.StartMouseTracking(TrackMouseCursor);
     }
 
     [RelayCommand]
     public void RecordKey()
     {
         MinimizeMainWindow();
-        _trackerManager.StartKeyboardTracking(TrackKeyPress);
         CenterRecordWindow();
         _trackerWindow.Show();
+        _trackerManager.StartKeyboardTracking(TrackKeyPress);
     }
 
     private void TrackMouseCursor(int x, int y)
@@ -53,20 +53,31 @@ public partial class PresetActionEditViewModel : ObservableObject
     private void StopTrackingAndRestore()
     {
         _trackerManager.StopTracking();
-        _trackerWindow.Hide();
-        RestoreMainWindow();
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            _trackerWindow.Hide();
+            RestoreMainWindow();
+        });
     }
 
     private void MinimizeMainWindow()
     {
-        if (Application.Current.MainWindow is { } mainWindow)
-            mainWindow.WindowState = WindowState.Minimized;
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            if (Application.Current.MainWindow is { } mainWindow)
+                mainWindow.WindowState = WindowState.Minimized;
+        });
     }
 
     private void RestoreMainWindow()
     {
         if (Application.Current.MainWindow is { } mainWindow)
+        {
             mainWindow.WindowState = WindowState.Normal;
+            mainWindow.Show();
+            mainWindow.Activate();
+            Methods.SetForegroundWindow(new WindowInteropHelper(mainWindow).Handle);
+        }
     }
 
     private void CenterRecordWindow()

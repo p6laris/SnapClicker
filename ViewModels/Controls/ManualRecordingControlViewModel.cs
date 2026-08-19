@@ -54,8 +54,8 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
     public void RecordPosition()
     {
         MinimizeMainWindow();
-        _trackerManagerService.StartMouseTracking(OnTrackingMouseCursor);
         _trackerWindow.Show();
+        _trackerManagerService.StartMouseTracking(OnTrackingMouseCursor);
     }
 
     private void OnTrackingMouseCursor(int x, int y)
@@ -69,9 +69,9 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
     public void RecordKey()
     {
         MinimizeMainWindow();
-        _trackerManagerService.StartKeyboardTracking(OnTrackingKeyPress);
         CenterRecordWindow();
         _trackerWindow.Show();
+        _trackerManagerService.StartKeyboardTracking(OnTrackingKeyPress);
     }
 
     private void OnTrackingKeyPress(Key key)
@@ -143,21 +143,32 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
     
     private void MinimizeMainWindow()
     {
-        if (Application.Current.MainWindow is { } mainWindow)
-            mainWindow.WindowState = WindowState.Minimized;
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            if (Application.Current.MainWindow is { } mainWindow)
+                mainWindow.WindowState = WindowState.Minimized;
+        });
     }
 
     private void StopTracking()
     {
         _trackerManagerService.StopTracking();
-        _trackerWindow.Hide();
-        RestoreMainWindow();
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            _trackerWindow.Hide();
+            RestoreMainWindow();
+        });
     }
 
     private void RestoreMainWindow()
     {
         if (Application.Current.MainWindow is { } mainWindow)
+        {
             mainWindow.WindowState = WindowState.Normal;
+            mainWindow.Show();
+            mainWindow.Activate();
+            Methods.SetForegroundWindow(new WindowInteropHelper(mainWindow).Handle);
+        }
     }
 
     private void CenterRecordWindow()

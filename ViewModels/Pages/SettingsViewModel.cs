@@ -95,6 +95,9 @@ namespace SnapClicker.ViewModels.Pages
             ActionInterval = AppConfig.ActionInterval;
             SelectedPlaybackSpeedOption = FormatSpeedOption(AppConfig.PlaybackSpeed);
             LastCheckedUpdateTime = $"Last Checked {AppConfig.LastCheckedUpdate}";
+            ReleaseNotesLink = "https://github.com/p6laris/SnapClicker/releases";
+            IsReleaseNotesLinkAvailable = true;
+            IsReleaseNotesAvailable = true;
         }
 
         [RelayCommand]
@@ -104,7 +107,14 @@ namespace SnapClicker.ViewModels.Pages
             {
                 IsProgressing = true;
                 _updateInfo = await _updateManager.CheckForUpdatesAsync().ConfigureAwait(true);
-                if (_updateInfo is null) return;
+                if (_updateInfo is null)
+                {
+                    IsUpdateAvailable = false;
+                    IsReleaseNotesAvailable = true;
+                    IsReleaseNotesLinkAvailable = true;
+                    LastCheckedUpdateTime = $"Last Checked {DateTime.Now:g}";
+                    return;
+                }
 
                 var toUpdateVersion = _updateInfo.TargetFullRelease.Version.ToString();
                 var notes = _updateInfo.TargetFullRelease.NotesMarkdown;
@@ -118,8 +128,8 @@ namespace SnapClicker.ViewModels.Pages
                 IsUpdateAvailable = true;
                 ToUpdateVersion = $"SnapClicker v{toUpdateVersion}";
                 ReleaseNotesContent = !string.IsNullOrWhiteSpace(notes) ? notes : string.Empty;
-                IsReleaseNotesAvailable = !string.IsNullOrWhiteSpace(ReleaseNotesContent);
-                ReleaseNotesLink = AppConfig.ReleaseNotesLink;
+                IsReleaseNotesAvailable = true;
+                ReleaseNotesLink = $"https://github.com/p6laris/SnapClicker/releases/tag/v{toUpdateVersion}";
                 IsReleaseNotesLinkAvailable = true;
                 LastCheckedUpdateTime = $"Last Checked {DateTime.Now:g}";
             }
@@ -142,11 +152,11 @@ namespace SnapClicker.ViewModels.Pages
         {
             var content = !string.IsNullOrWhiteSpace(ReleaseNotesContent)
                 ? ReleaseNotesContent
-                : $"Check out the latest improvements on the GitHub Releases page.";
+                : $"You are currently running SnapClicker v1.0.0 (Latest Release).\n\n🚀 Highlights in v1.0.0:\n• Multi-Display & Per-Monitor DPI Awareness\n• Windows System Tray & Context Menu\n• Pre-Start Countdown Overlay & Action Counter\n• Anti-Detection Timing & Coordinate Jitter\n• Playback Speed Multiplier (0.25x - 10x)\n• Escape & Corner Panic Stop Failsafes\n• Zero-Allocation Performance & Fast Loops\n• Drag & Drop Reordering & Multi-Item Actions\n\nFor the full changelog, visit the GitHub Releases page.";
 
             var dialog = new ContentDialog(_dialogService.GetDialogHostEx())
             {
-                Title = !string.IsNullOrWhiteSpace(ToUpdateVersion) ? $"What's New in {ToUpdateVersion}" : "Release Notes",
+                Title = !string.IsNullOrWhiteSpace(ToUpdateVersion) ? $"What's New in {ToUpdateVersion}" : "What's New in SnapClicker v1.0.0",
                 PrimaryButtonText = "Close",
                 DefaultButton = ContentDialogButton.Primary,
                 Content = new ScrollViewer

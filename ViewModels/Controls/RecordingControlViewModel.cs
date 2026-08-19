@@ -237,8 +237,8 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
         {
             if (state == WindowState.Normal)
             {
-                mainWindow.Show();
                 mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Show();
                 mainWindow.Activate();
                 Methods.SetForegroundWindow(new WindowInteropHelper(mainWindow).Handle);
             }
