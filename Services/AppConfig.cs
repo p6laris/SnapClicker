@@ -98,6 +98,16 @@ namespace SnapClicker.Services
             get => int.TryParse(GetAppSetting("CountdownSeconds"), out var value) && value > 0 ? value : 3;
             set => UpdateAppSetting("CountdownSeconds", value.ToString());
         }
+        public static bool MinimizeToTray
+        {
+            get => !bool.TryParse(GetAppSetting("MinimizeToTray"), out var value) || value;
+            set => UpdateAppSetting("MinimizeToTray", value.ToString());
+        }
+        public static bool CloseToTray
+        {
+            get => !bool.TryParse(GetAppSetting("CloseToTray"), out var value) || value;
+            set => UpdateAppSetting("CloseToTray", value.ToString());
+        }
         public static bool IsTimingJitterEnabled
         {
             get => bool.TryParse(GetAppSetting("IsTimingJitterEnabled"), out var value) && value;

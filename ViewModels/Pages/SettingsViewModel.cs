@@ -26,6 +26,8 @@ namespace SnapClicker.ViewModels.Pages
         [ObservableProperty] private bool _isCountdownEnabled;
         [ObservableProperty] private bool _isCountdownExpanded;
         [ObservableProperty] private double _countdownSeconds = 3;
+        [ObservableProperty] private bool _minimizeToTray = true;
+        [ObservableProperty] private bool _closeToTray = true;
         [ObservableProperty] private double _actionInterval;
         [ObservableProperty] private string _selectedPlaybackSpeedOption;
         [ObservableProperty] private string _lastCheckedUpdateTime = string.Empty;
@@ -85,6 +87,8 @@ namespace SnapClicker.ViewModels.Pages
             IsCountdownEnabled = AppConfig.IsCountdownEnabled;
             IsCountdownExpanded = AppConfig.IsCountdownEnabled;
             CountdownSeconds = AppConfig.CountdownSeconds;
+            MinimizeToTray = AppConfig.MinimizeToTray;
+            CloseToTray = AppConfig.CloseToTray;
             ActionInterval = AppConfig.ActionInterval;
             SelectedPlaybackSpeedOption = FormatSpeedOption(AppConfig.PlaybackSpeed);
             LastCheckedUpdateTime = $"Last Checked {AppConfig.LastCheckedUpdate}";
@@ -231,6 +235,16 @@ namespace SnapClicker.ViewModels.Pages
         partial void OnCountdownSecondsChanged(double value)
         {
             AppConfig.CountdownSeconds = (int)value;
+        }
+
+        partial void OnMinimizeToTrayChanged(bool value)
+        {
+            AppConfig.MinimizeToTray = value;
+        }
+
+        partial void OnCloseToTrayChanged(bool value)
+        {
+            AppConfig.CloseToTray = value;
         }
 
         partial void OnSelectedPlaybackSpeedOptionChanged(string value)

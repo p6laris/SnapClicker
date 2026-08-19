@@ -213,6 +213,64 @@
             </StackPanel>
         </ui:CardExpander>
 
+        <!--  Minimize to Tray  -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon ArrowMinimize24}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Minimize to System Tray"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="Hide the window to the system tray area when minimized."
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding ViewModel.MinimizeToTray, Mode=TwoWay}" />
+            </ui:CardControl>
+        </Grid>
+
+        <!--  Close to Tray  -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon Dismiss24}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Close to System Tray"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="Keep SnapClicker running in the background when closing the window."
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding ViewModel.CloseToTray, Mode=TwoWay}" />
+            </ui:CardControl>
+        </Grid>
+
         <!--  Mouse Movement  -->
         <Grid>
             <Grid.ColumnDefinitions>

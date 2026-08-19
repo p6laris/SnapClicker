@@ -4,16 +4,21 @@ namespace SnapClicker.Views.Windows
     {
         public MainWindowViewModel ViewModel { get; }
 
+        private readonly ISystemTrayService _systemTrayService;
+        private bool _isExplicitShutdown;
+
         public MainWindow(
             MainWindowViewModel viewModel,
             INavigationViewPageProvider navigationViewPageProvider,
             INavigationService navigationService,
             ISnackbarService snackbarService,
-            IContentDialogService contentDialogService
+            IContentDialogService contentDialogService,
+            ISystemTrayService systemTrayService
         )
         {
             ViewModel = viewModel;
             DataContext = this;
+            _systemTrayService = systemTrayService;
             
             SystemThemeWatcher.Watch(this);
             SetTheme();
@@ -24,8 +29,31 @@ namespace SnapClicker.Views.Windows
             navigationService.SetNavigationControl(RootNavigation);
             contentDialogService.SetDialogHost(RootContentDialog);
             snackbarService.SetSnackbarPresenter(SnackbarPresenter);
+
+            _systemTrayService.Initialize(this);
         }
 
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (AppConfig.CloseToTray && !_isExplicitShutdown)
+            {
+                e.Cancel = true;
+                Hide();
+                return;
+            }
+
+            base.OnClosing(e);
+        }
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            base.OnStateChanged(e);
+
+            if (WindowState == WindowState.Minimized && AppConfig.MinimizeToTray)
+            {
+                Hide();
+            }
+        }
         
         private void SetTheme()
         {
@@ -42,7 +70,11 @@ namespace SnapClicker.Views.Windows
 
         public void ShowWindow() => Show();
 
-        public void CloseWindow() => Close();
+        public void CloseWindow()
+        {
+            _isExplicitShutdown = true;
+            Close();
+        }
 
         #endregion INavigationWindow methods
 
@@ -51,6 +83,7 @@ namespace SnapClicker.Views.Windows
         /// </summary>
         protected override void OnClosed(EventArgs e)
         {
+            _systemTrayService.Dispose();
             base.OnClosed(e);
 
             // Make sure that closing this window will begin the process of closing the application.

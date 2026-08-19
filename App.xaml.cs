@@ -61,6 +61,7 @@ namespace SnapClicker
 
                 // TaskBar manipulation
                 services.AddSingleton<ITaskBarService, TaskBarService>();
+                services.AddSingleton<ISystemTrayService, SystemTrayService>();
 
                 // Service containing navigation, same as INavigationWindow... but without window
                 services.AddSingleton<INavigationService, NavigationService>();

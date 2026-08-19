@@ -18,6 +18,7 @@ global using System.Windows.Interop;
 global using SnapClicker.Models;
 global using SnapClicker.ViewModels.Windows;
 global using SnapClicker.Services;
+global using SnapClicker.Services.Interfaces;
 global using SnapClicker.Controls;
 global using SnapClicker.Data;
 global using SnapClicker.Helpers;
