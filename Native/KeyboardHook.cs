@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Native
+namespace SnapClicker.Native
 {
     public sealed class KeyboardHook : IDisposable
     {
@@ -57,15 +57,15 @@
         public static void SimulateKeyDown(Key key)
         {
             int vk = KeyInterop.VirtualKeyFromKey(key);
-            var input = CreateKeyboardInput((ushort)vk, 0);
-            Methods.SendInput(1, new[] { input }, Marshal.SizeOf<InputStruct>());
+            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[] { CreateKeyboardInput((ushort)vk, 0) };
+            Methods.SendInput(1, inputs, Marshal.SizeOf<InputStruct>());
         }
 
         public static void SimulateKeyUp(Key key)
         {
             int vk = KeyInterop.VirtualKeyFromKey(key);
-            var input = CreateKeyboardInput((ushort)vk, Constants.KeyeventfKeyup);
-            Methods.SendInput(1, new[] { input }, Marshal.SizeOf<InputStruct>());
+            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[] { CreateKeyboardInput((ushort)vk, Constants.KeyeventfKeyup) };
+            Methods.SendInput(1, inputs, Marshal.SizeOf<InputStruct>());
         }
 
         private static InputStruct CreateKeyboardInput(ushort vk, uint flags)

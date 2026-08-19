@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Native;
+namespace SnapClicker.Native;
 
 public static class Methods
 { 
@@ -12,11 +12,17 @@ public static class Methods
         public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern IntPtr GetModuleHandle(string lpModuleName);
+        public static extern IntPtr GetModuleHandle(string? lpModuleName);
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern uint SendInput(uint nInputs, InputStruct[] pInputs, int cbSize);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint SendInput(uint nInputs, [In] ReadOnlySpan<InputStruct> pInputs, int cbSize);
+
         [DllImport("user32.dll")]
         public static extern bool SetCursorPos(int x, int y);
+
+        [DllImport("user32.dll")]
+        public static extern bool GetCursorPos(out PointStruct lpPoint);
 }

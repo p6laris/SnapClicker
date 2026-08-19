@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Native
+namespace SnapClicker.Native
 {
     public sealed class MouseHook : IDisposable
     {
@@ -67,33 +67,39 @@
         {
             Methods.SetCursorPos(x, y);
 
-            Span<InputStruct> inputs = stackalloc InputStruct[2];
-            inputs[0] = CreateMouseInput(Constants.MouseeventfLeftdown);
-            inputs[1] = CreateMouseInput(Constants.MouseeventfLeftup);
+            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[]
+            {
+                CreateMouseInput(Constants.MouseeventfLeftdown),
+                CreateMouseInput(Constants.MouseeventfLeftup)
+            };
 
-            Methods.SendInput(2, inputs.ToArray(), Marshal.SizeOf<InputStruct>());
+            Methods.SendInput(2, inputs, Marshal.SizeOf<InputStruct>());
         }
 
         public static void SimulateRightClick(int x, int y)
         {
             Methods.SetCursorPos(x, y);
 
-            Span<InputStruct> inputs = stackalloc InputStruct[2];
-            inputs[0] = CreateMouseInput(Constants.MouseeventfRightdown);
-            inputs[1] = CreateMouseInput(Constants.MouseeventfRightup);
+            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[]
+            {
+                CreateMouseInput(Constants.MouseeventfRightdown),
+                CreateMouseInput(Constants.MouseeventfRightup)
+            };
 
-            Methods.SendInput(2, inputs.ToArray(), Marshal.SizeOf<InputStruct>());
+            Methods.SendInput(2, inputs, Marshal.SizeOf<InputStruct>());
         }
 
         public static void SimulateMiddleClick(int x, int y)
         {
             Methods.SetCursorPos(x, y);
 
-            Span<InputStruct> inputs = stackalloc InputStruct[2];
-            inputs[0] = CreateMouseInput(Constants.MouseeventfMiddledown);
-            inputs[1] = CreateMouseInput(Constants.MouseeventfMiddleup);
+            ReadOnlySpan<InputStruct> inputs = stackalloc InputStruct[]
+            {
+                CreateMouseInput(Constants.MouseeventfMiddledown),
+                CreateMouseInput(Constants.MouseeventfMiddleup)
+            };
 
-            Methods.SendInput(2, inputs.ToArray(), Marshal.SizeOf<InputStruct>());
+            Methods.SendInput(2, inputs, Marshal.SizeOf<InputStruct>());
         }
 
         private static  InputStruct CreateMouseInput(uint flags)
