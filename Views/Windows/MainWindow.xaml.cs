@@ -6,6 +6,7 @@ namespace SnapClicker.Views.Windows
 
         private readonly ISystemTrayService _systemTrayService;
         private bool _isExplicitShutdown;
+        private bool _isRestoring;
 
         public MainWindow(
             MainWindowViewModel viewModel,
@@ -33,6 +34,20 @@ namespace SnapClicker.Views.Windows
             _systemTrayService.Initialize(this);
         }
 
+        /// <summary>
+        /// Safely restores the window from tray/minimized state without triggering
+        /// the MinimizeToTray handler in OnStateChanged.
+        /// </summary>
+        public void RestoreFromTray()
+        {
+            _isRestoring = true;
+            Show();
+            WindowState = WindowState.Normal;
+            _isRestoring = false;
+            Activate();
+            Methods.SetForegroundWindow(new WindowInteropHelper(this).Handle);
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             if (AppConfig.CloseToTray && !_isExplicitShutdown)
@@ -49,7 +64,7 @@ namespace SnapClicker.Views.Windows
         {
             base.OnStateChanged(e);
 
-            if (WindowState == WindowState.Minimized && AppConfig.MinimizeToTray)
+            if (WindowState == WindowState.Minimized && AppConfig.MinimizeToTray && !_isRestoring)
             {
                 Hide();
             }

@@ -104,12 +104,10 @@ public class SystemTrayService : ISystemTrayService
 
     public void RestoreMainWindow()
     {
-        if (_mainWindow == null) return;
-
-        _mainWindow.WindowState = WindowState.Normal;
-        _mainWindow.Show();
-        _mainWindow.Activate();
-        Methods.SetForegroundWindow(_hwnd);
+        if (_mainWindow is MainWindow mw)
+        {
+            mw.RestoreFromTray();
+        }
     }
 
     private void ShowContextMenu()

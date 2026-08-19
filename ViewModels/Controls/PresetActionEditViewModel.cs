@@ -71,12 +71,9 @@ public partial class PresetActionEditViewModel : ObservableObject
 
     private void RestoreMainWindow()
     {
-        if (Application.Current.MainWindow is { } mainWindow)
+        if (Application.Current.MainWindow is MainWindow mainWindow)
         {
-            mainWindow.WindowState = WindowState.Normal;
-            mainWindow.Show();
-            mainWindow.Activate();
-            Methods.SetForegroundWindow(new WindowInteropHelper(mainWindow).Handle);
+            mainWindow.RestoreFromTray();
         }
     }
 

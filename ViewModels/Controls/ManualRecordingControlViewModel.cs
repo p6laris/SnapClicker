@@ -162,12 +162,9 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
 
     private void RestoreMainWindow()
     {
-        if (Application.Current.MainWindow is { } mainWindow)
+        if (Application.Current.MainWindow is MainWindow mainWindow)
         {
-            mainWindow.WindowState = WindowState.Normal;
-            mainWindow.Show();
-            mainWindow.Activate();
-            Methods.SetForegroundWindow(new WindowInteropHelper(mainWindow).Handle);
+            mainWindow.RestoreFromTray();
         }
     }
 
