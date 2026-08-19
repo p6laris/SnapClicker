@@ -216,7 +216,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <ui:CardControl
-                Icon="{ui:SymbolIcon ShakingHand20}"
+                Icon="{ui:SymbolIcon Timer24}"
                 Margin="4"
                 Padding="20,10,20,10">
                 <ui:CardControl.Header>
@@ -258,7 +258,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <ui:CardControl
-                Icon="{ui:SymbolIcon LocationTarget24}"
+                Icon="{ui:SymbolIcon Cursor20}"
                 Margin="4"
                 Padding="20,10,20,10">
                 <ui:CardControl.Header>
