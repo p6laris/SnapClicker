@@ -238,8 +238,9 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
     
     private void SetCursorPositionToCenter()
     {
-        var (screenWidth, screenHeight) = (SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
-        Methods.SetCursorPos((int)(screenWidth / 2), (int)(screenHeight / 2));
+        int centerX = (int)(SystemParameters.PrimaryScreenWidth / 2);
+        int centerY = (int)(SystemParameters.PrimaryScreenHeight / 2);
+        Methods.SetCursorPos(centerX, centerY);
     }
 
     public void Dispose()

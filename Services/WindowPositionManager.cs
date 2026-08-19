@@ -2,54 +2,87 @@ namespace SnapClicker.Services;
 
 /// <summary>
 /// Provides services for calculating and adjusting window positions on screen,
-/// accounting for DPI scaling and screen boundaries.
+/// accounting for multi-display setups, per-monitor DPI scaling, and screen boundaries.
 /// </summary>
 public class WindowPositionService
 {
     /// <summary>
-    /// Calculates the optimal window position based on screen coordinates and window dimensions.
+    /// Calculates the optimal window position based on screen coordinates and window dimensions across any monitor.
     /// </summary>
-    /// <param name="x">The X coordinate of the reference point (usually cursor position).</param>
-    /// <param name="y">The Y coordinate of the reference point (usually cursor position).</param>
-    /// <param name="width">The width of the window to position.</param>
-    /// <param name="height">The height of the window to position.</param>
-    /// <returns>
-    /// A tuple containing the calculated (Left, Top) position for the window.
-    /// Returns (NaN, NaN) if the input coordinates are invalid.
-    /// </returns>
-    /// <remarks>
-    /// This method:
-    /// - Adjusts for DPI scaling
-    /// - Ensures the window stays within screen bounds
-    /// - Positions the window slightly offset from the reference point
-    /// </remarks>
     public (double Left, double Top) GetCorrectWindowPosition(double x, double y, double width, double height)
     {
-        double dpiScale = GetDpiScale();
-        double scaledX = x / dpiScale;
-        double scaledY = y / dpiScale;
-
-        if (double.IsNaN(scaledX) || double.IsInfinity(scaledX) ||
-            double.IsNaN(scaledY) || double.IsInfinity(scaledY))
+        if (double.IsNaN(x) || double.IsInfinity(x) || double.IsNaN(y) || double.IsInfinity(y))
         {
-            return (double.NaN, double.NaN); // Invalid position
+            return (double.NaN, double.NaN);
         }
 
-        double screenWidth = SystemParameters.PrimaryScreenWidth;
-        double screenHeight = SystemParameters.PrimaryScreenHeight;
+        var pt = new PointStruct { X = (int)Math.Round(x), Y = (int)Math.Round(y) };
+        IntPtr hMonitor = Methods.MonitorFromPoint(pt, MonitorNativeConstants.MONITOR_DEFAULTTONEAREST);
 
-        double newLeft = scaledX - (width / 2);
+        double dpiScaleX = 1.0;
+        double dpiScaleY = 1.0;
+
+        if (hMonitor != IntPtr.Zero)
+        {
+            try
+            {
+                if (Methods.GetDpiForMonitor(hMonitor, MonitorNativeConstants.MDT_EFFECTIVE_DPI, out uint dpiX, out uint dpiY) == 0)
+                {
+                    if (dpiX > 0) dpiScaleX = dpiX / 96.0;
+                    if (dpiY > 0) dpiScaleY = dpiY / 96.0;
+                }
+            }
+            catch
+            {
+                dpiScaleX = GetFallbackDpiScale();
+                dpiScaleY = dpiScaleX;
+            }
+        }
+        else
+        {
+            dpiScaleX = GetFallbackDpiScale();
+            dpiScaleY = dpiScaleX;
+        }
+
+        // Convert cursor position from physical pixels to WPF DIPs
+        double scaledX = x / dpiScaleX;
+        double scaledY = y / dpiScaleY;
+
+        double monitorWorkLeft = 0;
+        double monitorWorkTop = 0;
+        double monitorWorkRight = SystemParameters.PrimaryScreenWidth;
+        double monitorWorkBottom = SystemParameters.PrimaryScreenHeight;
+
+        if (hMonitor != IntPtr.Zero)
+        {
+            var mi = new MONITORINFO { cbSize = (uint)Marshal.SizeOf<MONITORINFO>() };
+            if (Methods.GetMonitorInfo(hMonitor, ref mi))
+            {
+                monitorWorkLeft = mi.rcWork.Left / dpiScaleX;
+                monitorWorkTop = mi.rcWork.Top / dpiScaleY;
+                monitorWorkRight = mi.rcWork.Right / dpiScaleX;
+                monitorWorkBottom = mi.rcWork.Bottom / dpiScaleY;
+            }
+        }
+
+        double newLeft = scaledX - (width / 2.0);
         double newTop = scaledY + 20;
 
-        // Handle window position at the edges of the screen
-        if (newLeft < 0) newLeft = scaledX + 10;
-        if (newLeft + width > screenWidth) newLeft = scaledX - width - 10;
-        if (newTop + height > screenHeight) newTop = scaledY - height - 10;
+        // Ensure window stays completely within the current monitor's work area
+        if (newLeft < monitorWorkLeft)
+            newLeft = monitorWorkLeft + 10;
+        else if (newLeft + width > monitorWorkRight)
+            newLeft = monitorWorkRight - width - 10;
+
+        if (newTop + height > monitorWorkBottom)
+            newTop = scaledY - height - 10;
+        if (newTop < monitorWorkTop)
+            newTop = monitorWorkTop + 10;
 
         return (newLeft, newTop);
     }
-    
-    private static double GetDpiScale()
+
+    private static double GetFallbackDpiScale()
     {
         var wnd = Application.Current?.MainWindow;
         if (wnd != null)
@@ -62,7 +95,7 @@ public class WindowPositionService
             }
             catch
             {
-                // Fallback to default scale
+                // ignore
             }
         }
         return 1.0;

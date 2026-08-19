@@ -125,10 +125,16 @@ namespace SnapClicker.Services
             if ((Methods.GetAsyncKeyState(VkEscape) & 0x8000) != 0)
                 return true;
 
-            // 2. Check top-left corner failsafe (X <= 5 && Y <= 5)
+            // 2. Check top-left corner failsafe (primary display and virtual desktop bounds)
             if (Methods.GetCursorPos(out var pt))
             {
-                return pt.X <= 5 && pt.Y <= 5;
+                if (pt.X <= 5 && pt.Y <= 5)
+                    return true;
+
+                int vLeft = (int)SystemParameters.VirtualScreenLeft;
+                int vTop = (int)SystemParameters.VirtualScreenTop;
+                if (pt.X <= vLeft + 5 && pt.Y <= vTop + 5)
+                    return true;
             }
 
             return false;
@@ -193,8 +199,13 @@ namespace SnapClicker.Services
             {
                 int offsetX = Random.Shared.Next(-_coordinateJitterRadiusPx, _coordinateJitterRadiusPx + 1);
                 int offsetY = Random.Shared.Next(-_coordinateJitterRadiusPx, _coordinateJitterRadiusPx + 1);
-                x = Math.Clamp(x + offsetX, 0, (int)SystemParameters.VirtualScreenWidth);
-                y = Math.Clamp(y + offsetY, 0, (int)SystemParameters.VirtualScreenHeight);
+                int vLeft = (int)SystemParameters.VirtualScreenLeft;
+                int vTop = (int)SystemParameters.VirtualScreenTop;
+                int vRight = vLeft + (int)SystemParameters.VirtualScreenWidth;
+                int vBottom = vTop + (int)SystemParameters.VirtualScreenHeight;
+
+                x = Math.Clamp(x + offsetX, vLeft, vRight - 1);
+                y = Math.Clamp(y + offsetY, vTop, vBottom - 1);
             }
 
             switch (action.Type)
@@ -239,8 +250,9 @@ namespace SnapClicker.Services
         }
         private void SetCursorPositionToCenter()
         {
-            var (screenWidth, screenHeight) = (SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight);
-            Methods.SetCursorPos((int)(screenWidth / 2), (int)(screenHeight / 2));
+            int centerX = (int)(SystemParameters.PrimaryScreenWidth / 2);
+            int centerY = (int)(SystemParameters.PrimaryScreenHeight / 2);
+            Methods.SetCursorPos(centerX, centerY);
         }
 
         public void Dispose()
