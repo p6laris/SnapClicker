@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     d:DataContext="{d:DesignInstance local:PresetsView,
                                      IsDesignTimeCreatable=False}"
     d:DesignHeight="300"
@@ -19,6 +19,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <!--  Preset text  -->
@@ -32,7 +33,7 @@
             <ui:TextBox
                 Grid.Column="1"
                 HorizontalAlignment="Right"
-                MinWidth="250"
+                MinWidth="220"
                 PlaceholderText="Search presets"
                 Text="{Binding ViewModel.SearchTerm, UpdateSourceTrigger=PropertyChanged}"
                 VerticalAlignment="Center"
@@ -41,11 +42,37 @@
                     <KeyBinding Command="{Binding ViewModel.SearchPresetsCommand}" Key="Enter" />
                 </ui:TextBox.InputBindings>
             </ui:TextBox>
-            <!--  Filter criteria menu  -->
+            <!--  Backup menu (Bulk Import / Bulk Export)  -->
             <Menu
                 FontSize="10"
                 Grid.Column="2"
                 HorizontalAlignment="Right"
+                Margin="8,0,0,0"
+                VerticalAlignment="Center">
+                <ui:MenuItem
+                    FontSize="14"
+                    Header="Backup"
+                    Icon="{ui:SymbolIcon Open20}"
+                    ToolTip="Import or export presets in bulk">
+                    <ui:MenuItem
+                        Command="{Binding ViewModel.ImportPresetsCommand}"
+                        Header="Import Presets..."
+                        Icon="{ui:SymbolIcon Open20}"
+                        ToolTip="Import one or multiple preset JSON files" />
+                    <ui:MenuItem
+                        Command="{Binding ViewModel.ExportAllPresetsCommand}"
+                        Header="Export All Presets..."
+                        Icon="{ui:SymbolIcon Share20}"
+                        IsEnabled="{Binding ViewModel.HasPresets}"
+                        ToolTip="Export all saved presets to a single JSON backup file" />
+                </ui:MenuItem>
+            </Menu>
+            <!--  Filter criteria menu  -->
+            <Menu
+                FontSize="10"
+                Grid.Column="3"
+                HorizontalAlignment="Right"
+                Margin="4,0,0,0"
                 VerticalAlignment="Center"
                 Visibility="{Binding ViewModel.HasPresets, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=false}">
                 <ui:MenuItem

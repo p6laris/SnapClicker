@@ -182,6 +182,193 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
             ShowErrorMessage("Delete Failed", "Couldn't remove action.", new SymbolIcon(SymbolRegular.DeleteOff20));
         }
     }
+
+    [RelayCommand]
+    public async Task ExportPresetAsync(PresetsDto presetDto)
+    {
+        try
+        {
+            var sfd = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "Export Preset",
+                FileName = $"{presetDto.Name}.json",
+                DefaultExt = ".json",
+                Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*"
+            };
+
+            if (sfd.ShowDialog() == true)
+            {
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    Converters = { new JsonStringEnumConverter() }
+                };
+
+                var exportData = new Preset
+                {
+                    Name = presetDto.Name,
+                    IsRepetitive = presetDto.IsRepetitive,
+                    RepeatCount = presetDto.RepeatCount,
+                    CreatedDate = presetDto.CreatedDate,
+                    RecordedActions = presetDto.RecordedActions.Select(a => new RecordedAction
+                    {
+                        Type = a.Type,
+                        X = a.X,
+                        Y = a.Y,
+                        Key = a.Key,
+                        Timestamp = a.Timestamp,
+                        IsBurstMode = a.IsBurstMode
+                    }).ToList()
+                };
+
+                var json = JsonSerializer.Serialize(exportData, options);
+                await File.WriteAllTextAsync(sfd.FileName, json);
+
+                _snackbarService.Show(
+                    "Preset Exported",
+                    $"Successfully exported '{presetDto.Name}'.",
+                    ControlAppearance.Success,
+                    new SymbolIcon(SymbolRegular.CheckmarkCircle20),
+                    TimeSpan.FromSeconds(3)
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage("Export Failed", $"Could not export preset: {ex.Message}", new SymbolIcon(SymbolRegular.ErrorCircle20));
+        }
+    }
+
+    [RelayCommand]
+    public async Task ExportAllPresetsAsync()
+    {
+        try
+        {
+            if (!_presetsList.Any())
+                return;
+
+            var sfd = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "Export All Presets",
+                FileName = $"SnapClicker_Presets_{DateTime.Now:yyyyMMdd}.json",
+                DefaultExt = ".json",
+                Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*"
+            };
+
+            if (sfd.ShowDialog() == true)
+            {
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    Converters = { new JsonStringEnumConverter() }
+                };
+
+                var allPresets = _presetsList.Select(p => new Preset
+                {
+                    Name = p.Name,
+                    IsRepetitive = p.IsRepetitive,
+                    RepeatCount = p.RepeatCount,
+                    CreatedDate = p.CreatedDate,
+                    RecordedActions = p.RecordedActions.Select(a => new RecordedAction
+                    {
+                        Type = a.Type,
+                        X = a.X,
+                        Y = a.Y,
+                        Key = a.Key,
+                        Timestamp = a.Timestamp,
+                        IsBurstMode = a.IsBurstMode
+                    }).ToList()
+                }).ToList();
+
+                var json = JsonSerializer.Serialize(allPresets, options);
+                await File.WriteAllTextAsync(sfd.FileName, json);
+
+                _snackbarService.Show(
+                    "Presets Exported",
+                    $"Successfully exported {allPresets.Count} preset(s) to '{Path.GetFileName(sfd.FileName)}'.",
+                    ControlAppearance.Success,
+                    new SymbolIcon(SymbolRegular.CheckmarkCircle20),
+                    TimeSpan.FromSeconds(3)
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage("Export Failed", $"Could not export presets: {ex.Message}", new SymbolIcon(SymbolRegular.ErrorCircle20));
+        }
+    }
+
+    [RelayCommand]
+    public async Task ImportPresetsAsync()
+    {
+        try
+        {
+            var ofd = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Import Presets",
+                Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
+                Multiselect = true
+            };
+
+            if (ofd.ShowDialog() == true)
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    Converters = { new JsonStringEnumConverter() }
+                };
+
+                int importedCount = 0;
+                foreach (var filePath in ofd.FileNames)
+                {
+                    var json = await File.ReadAllTextAsync(filePath);
+                    List<Preset> presetsToImport = new();
+
+                    try
+                    {
+                        var single = JsonSerializer.Deserialize<Preset>(json, options);
+                        if (single != null && single.RecordedActions.Any())
+                            presetsToImport.Add(single);
+                    }
+                    catch
+                    {
+                        var list = JsonSerializer.Deserialize<List<Preset>>(json, options);
+                        if (list != null)
+                            presetsToImport.AddRange(list.Where(p => p.RecordedActions.Any()));
+                    }
+
+                    foreach (var preset in presetsToImport)
+                    {
+                        preset.Id = 0;
+                        foreach (var act in preset.RecordedActions)
+                            act.Id = 0;
+
+                        if (string.IsNullOrWhiteSpace(preset.Name))
+                            preset.Name = Path.GetFileNameWithoutExtension(filePath);
+
+                        await _presetRepository.AddPresetAsync(preset);
+                        importedCount++;
+                    }
+                }
+
+                if (importedCount > 0)
+                {
+                    await ReloadPresets();
+                    _snackbarService.Show(
+                        "Presets Imported",
+                        $"Successfully imported {importedCount} preset(s).",
+                        ControlAppearance.Success,
+                        new SymbolIcon(SymbolRegular.CheckmarkCircle20),
+                        TimeSpan.FromSeconds(3)
+                    );
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage("Import Failed", $"Could not import presets: {ex.Message}", new SymbolIcon(SymbolRegular.ErrorCircle20));
+        }
+    }
     
     private void ShowErrorMessage(string title, string content,SymbolIcon icon ) =>
         _snackbarService.Show(title, content,ControlAppearance.Danger, icon, TimeSpan.FromSeconds(5));

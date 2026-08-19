@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     d:DataContext="{d:DesignInstance local:PresetsView,
                                      IsDesignTimeCreatable=False}"
     d:DesignHeight="300"
@@ -19,6 +19,11 @@
                 CommandParameter="{Binding}"
                 Header="Edit"
                 Icon="{ui:SymbolIcon TableCellEdit16}" />
+            <ui:MenuItem
+                Command="{Binding PlacementTarget.Tag.ExportPresetCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                CommandParameter="{Binding}"
+                Header="Export to JSON"
+                Icon="{ui:SymbolIcon Share20}" />
             <ui:MenuItem
                 Command="{Binding PlacementTarget.Tag.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                 CommandParameter="{Binding}"
@@ -111,7 +116,8 @@
                                             Appearance="Primary"
                                             Command="{Binding Path=DataContext.ViewModel.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=local:PresetsView}}"
                                             CommandParameter="{Binding}"
-                                            Margin="0,0,10,0">
+                                            Margin="0,0,10,0"
+                                            ToolTip="Load and play preset">
                                             <Button.Content>
                                                 <ui:SymbolIcon Symbol="Open20" />
                                             </Button.Content>
