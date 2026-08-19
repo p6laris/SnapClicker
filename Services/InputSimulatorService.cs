@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Services
+namespace SnapClicker.Services
 {
     /// <summary>
     /// Simulates user input actions (mouse and keyboard).
@@ -34,11 +34,17 @@
                 if (cancellationToken.IsCancellationRequested)
                     break;
 
-                var targetDelayMs = action.IsBurstMode
-                    ? action.Timestamp.TotalMilliseconds
-                    : (action.Timestamp - baseTime).TotalMilliseconds;
-
-                await WaitUntilAsync(targetDelayMs, cancellationToken);
+                if (action.IsBurstMode)
+                {
+                    var delayMs = action.Timestamp.TotalMilliseconds;
+                    if (delayMs > 0)
+                        await WaitDurationAsync(delayMs, cancellationToken);
+                }
+                else
+                {
+                    var targetDelayMs = (action.Timestamp - baseTime).TotalMilliseconds;
+                    await WaitAbsoluteAsync(targetDelayMs, cancellationToken);
+                }
 
                 if (cancellationToken.IsCancellationRequested)
                     break;
@@ -46,53 +52,55 @@
                 ExecuteAction(action);
 
                 if (_interval > 0)
-                    await WaitUntilAsync(_interval, cancellationToken, isInterval: true);
+                    await WaitDurationAsync(_interval, cancellationToken);
             }
 
             _stopwatch.Stop();
         }
-        private async ValueTask WaitUntilAsync(double milliseconds, CancellationToken cancellationToken, bool isInterval = false)
+
+        private async ValueTask WaitAbsoluteAsync(double targetElapsedMs, CancellationToken cancellationToken)
         {
             if (!_isPreciseDelaysEnabled)
             {
-                // Coarse delay (original fallback)
-                var remaining = milliseconds - (isInterval ? 0 : _stopwatch.Elapsed.TotalMilliseconds);
+                var remaining = targetElapsedMs - _stopwatch.Elapsed.TotalMilliseconds;
                 if (remaining > 0)
                     await Task.Delay((int)remaining, cancellationToken);
                 return;
             }
 
-            // PRECISE DELAY MODE (high accuracy)
-            if (isInterval)
+            while (_stopwatch.Elapsed.TotalMilliseconds < targetElapsedMs)
             {
-                // For intervals, use a separate Stopwatch (since they're relative to action completion)
-                var sw = Stopwatch.StartNew();
-                while (sw.Elapsed.TotalMilliseconds < milliseconds)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                        break;
+                if (cancellationToken.IsCancellationRequested)
+                    break;
 
-                    var remaining = milliseconds - sw.Elapsed.TotalMilliseconds;
-                    if (remaining > 2) 
-                        await Task.Delay(1, cancellationToken);
-                    else 
-                        Thread.SpinWait(20);
-                }
+                var remaining = targetElapsedMs - _stopwatch.Elapsed.TotalMilliseconds;
+                if (remaining > 2)
+                    await Task.Delay((int)Math.Min(remaining, 16), cancellationToken);
+                else
+                    Thread.SpinWait(20);
             }
-            else
-            {
-                // For action timing, sync with the main Stopwatch
-                while (_stopwatch.Elapsed.TotalMilliseconds < milliseconds)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                        break;
+        }
 
-                    var remaining = milliseconds - _stopwatch.Elapsed.TotalMilliseconds;
-                    if (remaining > 2)
-                        await Task.Delay((int)Math.Min(remaining, 16), cancellationToken);
-                    else
-                        Thread.SpinWait(20);
-                }
+        private async ValueTask WaitDurationAsync(double milliseconds, CancellationToken cancellationToken)
+        {
+            if (!_isPreciseDelaysEnabled)
+            {
+                if (milliseconds > 0)
+                    await Task.Delay((int)milliseconds, cancellationToken);
+                return;
+            }
+
+            var sw = Stopwatch.StartNew();
+            while (sw.Elapsed.TotalMilliseconds < milliseconds)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
+                var remaining = milliseconds - sw.Elapsed.TotalMilliseconds;
+                if (remaining > 2)
+                    await Task.Delay(1, cancellationToken);
+                else
+                    Thread.SpinWait(20);
             }
         }
         private void ExecuteAction(RecordedAction action)

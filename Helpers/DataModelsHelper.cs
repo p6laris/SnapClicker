@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Helpers;
+namespace SnapClicker.Helpers;
 
 public static class DataModelsHelper
 {
@@ -10,7 +10,7 @@ public static class DataModelsHelper
             Name = preset.Name,
             IsRepetitive = preset.IsRepetitive,
             RepeatCount = preset.RepeatCount,
-            RecordedActions = preset.RecordedActions,
+            RecordedActions = preset.RecordedActions?.Select(a => a with { }).ToList() ?? new List<RecordedAction>(),
             CreatedDate = preset.CreatedDate,
         };
                             
@@ -25,7 +25,7 @@ public static class DataModelsHelper
             Name = presetsDto.Name,
             IsRepetitive = presetsDto.IsRepetitive,
             RepeatCount = presetsDto.RepeatCount,
-            RecordedActions = presetsDto.RecordedActions,
+            RecordedActions = presetsDto.RecordedActions?.Select(a => a with { }).ToList() ?? new List<RecordedAction>(),
             CreatedDate = presetsDto.CreatedDate
         };
         
