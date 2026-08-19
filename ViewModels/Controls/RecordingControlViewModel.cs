@@ -63,12 +63,18 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
 
     private void OnStartOrRecordingHotkey()
     {
-        //Only trigger the hotkey when we are in SnapClicker page(Recording page)
+        // If currently recording, ALWAYS stop recording immediately!
+        if (IsRecording)
+        {
+            StopRecordingCommand.Execute(null);
+            return;
+        }
+
         var isDashboardPageIsActive = _navigationView.SelectedItem?.Content is string content && content == "SnapClicker";
         if (!isDashboardPageIsActive)
             return;
-        
-        (IsRecording ? StopRecordingCommand : StartRecordingCommand).Execute(null);   
+
+        StartRecordingCommand.Execute(null);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

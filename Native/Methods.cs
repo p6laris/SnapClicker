@@ -25,4 +25,7 @@ public static class Methods
 
         [DllImport("user32.dll")]
         public static extern bool GetCursorPos(out PointStruct lpPoint);
+
+        [DllImport("user32.dll")]
+        public static extern short GetAsyncKeyState(int vKey);
 }

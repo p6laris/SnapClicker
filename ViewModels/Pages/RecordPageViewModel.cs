@@ -44,15 +44,18 @@ namespace SnapClicker.ViewModels.Pages
         
         private async void OnStartOrStop()
         {
-            //Only trigger the hotkeys when we are in record page.
-            var isRecordPageActive = _navigationView.SelectedItem?.Content is string content && content == "Record";
-            if (!isRecordPageActive)
-                return;
-            
+            // If simulation is currently running, ALWAYS stop immediately!
             if (IsSimulationRunning)
+            {
                 StopActions();
-            else
+                return;
+            }
+
+            var isRecordPageActive = _navigationView.SelectedItem?.Content is string content && content == "Record";
+            if (isRecordPageActive || SelectedPreset != null)
+            {
                 await PlayActionsAsync();
+            }
         }
 
         [RelayCommand]

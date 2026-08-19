@@ -61,9 +61,9 @@ namespace SnapClicker.Services
                     break;
                 }
 
-                if (IsCornerFailsafeTriggered())
+                if (IsPanicFailsafeTriggered())
                 {
-                    _logger.LogWarning("Simulation aborted by emergency corner failsafe.");
+                    _logger.LogWarning("Simulation aborted by emergency panic failsafe (Escape key / Corner).");
                     break;
                 }
 
@@ -89,7 +89,7 @@ namespace SnapClicker.Services
                     await WaitAbsoluteAsync(targetDelayMs, cancellationToken);
                 }
 
-                if (cancellationToken.IsCancellationRequested || IsCornerFailsafeTriggered())
+                if (cancellationToken.IsCancellationRequested || IsPanicFailsafeTriggered())
                     break;
 
                 ExecuteAction(action);
@@ -110,58 +110,71 @@ namespace SnapClicker.Services
             _logger.LogInformation("Simulation finished. Total elapsed: {ElapsedMs} ms.", _stopwatch.ElapsedMilliseconds);
         }
 
-        private static bool IsCornerFailsafeTriggered()
+        private const int VkEscape = 0x1B;
+
+        private static bool IsPanicFailsafeTriggered()
         {
+            // 1. Check if Escape key is pressed
+            if ((Methods.GetAsyncKeyState(VkEscape) & 0x8000) != 0)
+                return true;
+
+            // 2. Check top-left corner failsafe (X <= 5 && Y <= 5)
             if (Methods.GetCursorPos(out var pt))
             {
                 return pt.X <= 5 && pt.Y <= 5;
             }
+
             return false;
         }
 
         private async ValueTask WaitAbsoluteAsync(double targetElapsedMs, CancellationToken cancellationToken)
         {
-            if (!_isPreciseDelaysEnabled)
-            {
-                var remaining = targetElapsedMs - _stopwatch.Elapsed.TotalMilliseconds;
-                if (remaining > 0)
-                    await Task.Delay((int)remaining, cancellationToken);
-                return;
-            }
-
             while (_stopwatch.Elapsed.TotalMilliseconds < targetElapsedMs)
             {
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested || IsPanicFailsafeTriggered())
                     break;
 
                 var remaining = targetElapsedMs - _stopwatch.Elapsed.TotalMilliseconds;
-                if (remaining > 2)
-                    await Task.Delay((int)Math.Min(remaining, 16), cancellationToken);
+                if (!_isPreciseDelaysEnabled)
+                {
+                    if (remaining > 20)
+                        await Task.Delay((int)Math.Min(remaining, 50), cancellationToken);
+                    else if (remaining > 0)
+                        await Task.Delay((int)remaining, cancellationToken);
+                }
                 else
-                    Thread.SpinWait(20);
+                {
+                    if (remaining > 2)
+                        await Task.Delay((int)Math.Min(remaining, 16), cancellationToken);
+                    else
+                        Thread.SpinWait(20);
+                }
             }
         }
 
         private async ValueTask WaitDurationAsync(double milliseconds, CancellationToken cancellationToken)
         {
-            if (!_isPreciseDelaysEnabled)
-            {
-                if (milliseconds > 0)
-                    await Task.Delay((int)milliseconds, cancellationToken);
-                return;
-            }
-
             var sw = Stopwatch.StartNew();
             while (sw.Elapsed.TotalMilliseconds < milliseconds)
             {
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested || IsPanicFailsafeTriggered())
                     break;
 
                 var remaining = milliseconds - sw.Elapsed.TotalMilliseconds;
-                if (remaining > 2)
-                    await Task.Delay(1, cancellationToken);
+                if (!_isPreciseDelaysEnabled)
+                {
+                    if (remaining > 20)
+                        await Task.Delay((int)Math.Min(remaining, 50), cancellationToken);
+                    else if (remaining > 0)
+                        await Task.Delay((int)remaining, cancellationToken);
+                }
                 else
-                    Thread.SpinWait(20);
+                {
+                    if (remaining > 2)
+                        await Task.Delay(1, cancellationToken);
+                    else
+                        Thread.SpinWait(20);
+                }
             }
         }
         private void ExecuteAction(RecordedAction action)
