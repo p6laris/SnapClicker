@@ -1,4 +1,4 @@
-﻿using MessageBox = Wpf.Ui.Controls.MessageBox;
+using MessageBox = Wpf.Ui.Controls.MessageBox;
 
 namespace SnapClicker.ViewModels.Pages
 {
@@ -18,11 +18,11 @@ namespace SnapClicker.ViewModels.Pages
         [ObservableProperty] private bool _isMouseMoveRecordingSet;
         [ObservableProperty] private bool _isPreciseDelaySet;
         [ObservableProperty] private double _actionInterval;
-        [ObservableProperty] private string _lastCheckedUpdateTime;
+        [ObservableProperty] private string _lastCheckedUpdateTime = string.Empty;
         [ObservableProperty] private bool _isUpdateAvailable;
-        [ObservableProperty] private string _toUpdateVersion;
+        [ObservableProperty] private string _toUpdateVersion = string.Empty;
         [ObservableProperty] private bool _isProgressing;
-        [ObservableProperty] private string _releaseNotesLink;
+        [ObservableProperty] private string _releaseNotesLink = string.Empty;
         [ObservableProperty] private bool _isReleaseNotesLinkAvailable;
         [ObservableProperty] private bool _isWarningFlyoutOpen;
         [ObservableProperty] private string _appVersion = string.Empty;
@@ -80,7 +80,7 @@ namespace SnapClicker.ViewModels.Pages
                 IsReleaseNotesLinkAvailable = true;
                 LastCheckedUpdateTime = $"Last Checked {DateTime.Now}";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ShowErrorMessage(
                     "Update Check Failed", 
@@ -258,8 +258,8 @@ namespace SnapClicker.ViewModels.Pages
         
         private string GetAssemblyVersion()
         {
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly().GetName();
-            return $"{assembly.Version.Major}.{assembly.Version.Minor}.{assembly.Version.Build}";
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            return version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "1.0.0";
         }
     }
 }

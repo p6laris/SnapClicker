@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.ViewModels.Controls;
+namespace SnapClicker.ViewModels.Controls;
 
 public partial class RecordingControlViewModel : ObservableObject, IDisposable
 { 
@@ -64,7 +64,7 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
     private void OnStartOrRecordingHotkey()
     {
         //Only trigger the hotkey when we are in SnapClicker page(Recording page)
-        var isDashboardPageIsActive = (string)_navigationView.SelectedItem.Content == "SnapClicker";
+        var isDashboardPageIsActive = _navigationView.SelectedItem?.Content is string content && content == "SnapClicker";
         if (!isDashboardPageIsActive)
             return;
         
@@ -160,14 +160,18 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
         if (await saveDialog.ShowAsync() != ContentDialogResult.Primary ) 
             return;
         
-        if(string.IsNullOrEmpty(preset.Name))
+        if (string.IsNullOrWhiteSpace(preset.Name))
+        {
             ShowErrorMessage("Missing Name", "Please try again and enter a name for your preset.", new SymbolIcon(SymbolRegular.BookInformation20));
+            return;
+        }
+
         try
         {
             await _presetRepository.AddPresetAsync(preset);
             WeakReferenceMessenger.Default.Send(new PresetSavedMessage(true));
         }
-        catch (Exception e)
+        catch (Exception)
         {
             ShowErrorMessage("Save Failed", $"Couldn't save '{preset.Name}'.", new SymbolIcon(SymbolRegular.BookDatabase20));
         }
@@ -188,6 +192,7 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        _recorderManagerService.OnNewRecord -= AddNewRecord;
         WeakReferenceMessenger.Default.Unregister<StartAndStopRecordHotKeyMessage>(this);
         RecordsView.Dispose();
         _hotKeyManager.UnregisterHotKey(_hotkeyId);

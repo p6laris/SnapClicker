@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Views.Windows
+namespace SnapClicker.Views.Windows
 {
     public partial class MainWindow : INavigationWindow
     {
@@ -57,20 +57,14 @@
             Application.Current.Shutdown();
         }
         
-        INavigationView INavigationWindow.GetNavigation()
-        {
-            throw new NotImplementedException();
-        }
-
         public void SetServiceProvider(IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
         }
 
         private void RootNavigation_OnItemInvoked(NavigationView sender, RoutedEventArgs args)
         {
-            if((string)sender.SelectedItem.Content == "Github")
-                Console.Write(sender.SelectedItem.Content);
+            if (sender.SelectedItem?.Content is string content && content == "Github")
+                Console.Write(content);
         }
     }
 }

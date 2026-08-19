@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.ViewModels.Pages
+namespace SnapClicker.ViewModels.Pages
 {
     public partial class RecordPageViewModel : ObservableObject, IDisposable
     {
@@ -7,9 +7,9 @@
         private readonly INavigationView _navigationView;
         
         private int _hotkeyId;
-        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource? _cancellationTokenSource;
         
-        [ObservableProperty] private PresetsDto _selectedPreset;
+        [ObservableProperty] private PresetsDto? _selectedPreset;
         [ObservableProperty] private bool _isSimulationRunning;
 
         public RecordPageViewModel(
@@ -45,7 +45,7 @@
         private async void OnStartOrStop()
         {
             //Only trigger the hotkeys when we are in record page.
-            var isRecordPageActive = (string)_navigationView.SelectedItem.Content == "Record";
+            var isRecordPageActive = _navigationView.SelectedItem?.Content is string content && content == "Record";
             if (!isRecordPageActive)
                 return;
             
@@ -58,8 +58,9 @@
         [RelayCommand]
         public async Task PlayActionsAsync()
         {
-            if (SelectedPreset?.RecordedActions?.Count > 0)
+            if (SelectedPreset?.RecordedActions is { Count: > 0 } rawActions)
             {
+                var sortedActions = rawActions.OrderBy(x => x.Timestamp).ToList();
                 IsSimulationRunning = true;
                 _cancellationTokenSource = new CancellationTokenSource();
 
@@ -76,14 +77,14 @@
                                 if (_cancellationTokenSource.Token.IsCancellationRequested)
                                     break;
 
-                                await SimulateAsync(_cancellationTokenSource.Token);
+                                await _inputSimulatorService.Simulate(sortedActions, _cancellationTokenSource.Token);
                             }
                         }
                         else
                         {
                             while (!_cancellationTokenSource.Token.IsCancellationRequested)
                             {
-                                await SimulateAsync(_cancellationTokenSource.Token);
+                                await _inputSimulatorService.Simulate(sortedActions, _cancellationTokenSource.Token);
                             }
                         }
                     });
@@ -99,10 +100,6 @@
                 }
             }
         }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private async ValueTask SimulateAsync(CancellationToken cancellationToken) => 
-            await _inputSimulatorService.Simulate(SelectedPreset.RecordedActions.OrderBy(x => x.Timestamp).ToList(), cancellationToken);
         
 
         [RelayCommand]

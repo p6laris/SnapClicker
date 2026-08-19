@@ -1,4 +1,4 @@
-﻿using MessageBox = Wpf.Ui.Controls.MessageBox;
+using MessageBox = Wpf.Ui.Controls.MessageBox;
 
 namespace SnapClicker.ViewModels.Controls;
 
@@ -47,7 +47,7 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
     partial void OnSecondsChanged(double? value) => ValidateTimeFields();
         
     partial void OnMillisecondsChanged(double? value) => ValidateTimeFields();
-     partial void OnSelectedActionTypeChanging(ActionType value) => 
+     partial void OnSelectedActionTypeChanged(ActionType value) => 
             ShouldShowKeySection = value is ActionType.KeyDown or ActionType.KeyUp;
      
     [RelayCommand]
@@ -83,6 +83,11 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
     [RelayCommand]
     public async Task SaveRecording()
     {
+        bool isMouseAction = SelectedActionType is ActionType.LeftMouseClick 
+            or ActionType.RightMouseClick 
+            or ActionType.MiddleMouseClick 
+            or ActionType.MouseMove;
+
         var preset = new Preset
         {
             CreatedDate = DateTime.Now,
@@ -92,9 +97,9 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
                 {
                     Type = SelectedActionType,
                     Timestamp = new TimeSpan(0, (int)(Hours ?? 0), (int)(Minutes ?? 0), (int)(Seconds ?? 0), (int)(Milliseconds ?? 0)),
-                    X = SelectedActionType is ActionType.LeftMouseClick or ActionType.RightMouseClick ? CursorX : 0,
-                    Y = SelectedActionType is ActionType.LeftMouseClick or ActionType.RightMouseClick ? CursorY : 0,
-                    Key = SelectedActionType is ActionType.LeftMouseClick or ActionType.RightMouseClick ? Key.None : SelectedKey,
+                    X = isMouseAction ? CursorX : 0,
+                    Y = isMouseAction ? CursorY : 0,
+                    Key = isMouseAction ? Key.None : SelectedKey,
                     IsBurstMode = true
                 }
             }
@@ -111,7 +116,7 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
         if (result != ContentDialogResult.Primary )
             return;
 
-        if (string.IsNullOrEmpty(preset.Name))
+        if (string.IsNullOrWhiteSpace(preset.Name))
         {
             ShowErrorMessage(
                 "Preset Name Required", 
@@ -126,7 +131,7 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
             await _presetRepository.AddPresetAsync(preset);
             WeakReferenceMessenger.Default.Send(new PresetSavedMessage(true));
         }
-        catch (Exception e)
+        catch (Exception)
         {
             ShowErrorMessage(
                 "Save Failed", 
@@ -168,5 +173,5 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
     private void ValidateTimeFields() =>
         IsValid = (Hours ?? 0) > 0 || (Minutes ?? 0) > 0 || (Seconds ?? 0) > 0 || (Milliseconds ?? 0) > 0;
     
-    public void Dispose() => _trackerManagerService.Dispose();
+    public void Dispose() => _trackerManagerService.StopTracking();
 }

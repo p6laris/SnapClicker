@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.ViewModels.Controls;
+namespace SnapClicker.ViewModels.Controls;
 
 public partial class PresetsControlViewModel : ObservableObject, IDisposable
 {
@@ -14,7 +14,7 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
     
     [ObservableProperty] private bool _hasPresets;
     [ObservableProperty] private PresetSortCriteria _presetSortCriteria;
-    [ObservableProperty] private string _searchTerm = null!;
+    [ObservableProperty] private string _searchTerm = string.Empty;
     
     public PresetsControlViewModel(IPresetRepository presetRepository,
         RecordPageViewModel recordPageViewModel,
@@ -31,7 +31,7 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
         PresetsView = _presetsList.ToWritableNotifyCollectionChanged();
         
         //When we created a new preset we reload the data from the data source.
-        WeakReferenceMessenger.Default.Register<PresetSavedMessage>(this, (_, _) => ReloadPresets());
+        WeakReferenceMessenger.Default.Register<PresetSavedMessage>(this, (_, _) => { _ = ReloadPresets(); });
     }
     
     [RelayCommand]
