@@ -36,6 +36,9 @@ namespace SnapClicker.ViewModels.Pages
         [ObservableProperty] private bool _isProgressing;
         [ObservableProperty] private string _releaseNotesLink = string.Empty;
         [ObservableProperty] private bool _isReleaseNotesLinkAvailable;
+        [ObservableProperty] private string _releaseNotesContent = string.Empty;
+        [ObservableProperty] private bool _isReleaseNotesAvailable;
+        [ObservableProperty] private int _downloadProgress;
         [ObservableProperty] private bool _isWarningFlyoutOpen;
         [ObservableProperty] private string _appVersion = string.Empty;
         [ObservableProperty] private ApplicationTheme _currentTheme = ApplicationThemeManager.GetAppTheme();
@@ -104,6 +107,7 @@ namespace SnapClicker.ViewModels.Pages
                 if (_updateInfo is null) return;
 
                 var toUpdateVersion = _updateInfo.TargetFullRelease.Version.ToString();
+                var notes = _updateInfo.TargetFullRelease.NotesMarkdown;
 
                 AppConfig.IsUpdateAvailable = true;
                 AppConfig.ToUpdateVersion = toUpdateVersion;
@@ -113,9 +117,11 @@ namespace SnapClicker.ViewModels.Pages
 
                 IsUpdateAvailable = true;
                 ToUpdateVersion = $"SnapClicker v{toUpdateVersion}";
+                ReleaseNotesContent = !string.IsNullOrWhiteSpace(notes) ? notes : string.Empty;
+                IsReleaseNotesAvailable = !string.IsNullOrWhiteSpace(ReleaseNotesContent);
                 ReleaseNotesLink = AppConfig.ReleaseNotesLink;
                 IsReleaseNotesLinkAvailable = true;
-                LastCheckedUpdateTime = $"Last Checked {DateTime.Now}";
+                LastCheckedUpdateTime = $"Last Checked {DateTime.Now:g}";
             }
             catch (Exception)
             {
@@ -132,6 +138,36 @@ namespace SnapClicker.ViewModels.Pages
         }
 
         [RelayCommand]
+        public async Task ViewReleaseNotesAsync()
+        {
+            var content = !string.IsNullOrWhiteSpace(ReleaseNotesContent)
+                ? ReleaseNotesContent
+                : $"Check out the latest improvements on the GitHub Releases page.";
+
+            var dialog = new ContentDialog(_dialogService.GetDialogHostEx())
+            {
+                Title = !string.IsNullOrWhiteSpace(ToUpdateVersion) ? $"What's New in {ToUpdateVersion}" : "Release Notes",
+                PrimaryButtonText = "Close",
+                DefaultButton = ContentDialogButton.Primary,
+                Content = new ScrollViewer
+                {
+                    MaxHeight = 400,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    Content = new Wpf.Ui.Controls.TextBlock
+                    {
+                        Text = content,
+                        TextWrapping = TextWrapping.Wrap,
+                        FontSize = 13,
+                        LineHeight = 20,
+                        Margin = new Thickness(4)
+                    }
+                }
+            };
+
+            await dialog.ShowAsync();
+        }
+
+        [RelayCommand]
         public async Task DownloadAndInstallUpdates()
         {
             try
@@ -141,7 +177,10 @@ namespace SnapClicker.ViewModels.Pages
                     return;
 
                 AppConfig.IsUpdateAvailable = false;
-                await _updateManager.DownloadUpdatesAsync(_updateInfo).ConfigureAwait(true);
+                await _updateManager.DownloadUpdatesAsync(_updateInfo, progress =>
+                {
+                    DownloadProgress = progress;
+                }).ConfigureAwait(true);
                 _updateManager.ApplyUpdatesAndRestart(_updateInfo);
             }
             catch

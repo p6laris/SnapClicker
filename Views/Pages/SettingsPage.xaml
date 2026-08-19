@@ -45,13 +45,27 @@
                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                             Text="{Binding ViewModel.LastCheckedUpdateTime}"
                             TextWrapping="WrapWithOverflow" />
-                        <ui:HyperlinkButton
-                            Appearance="Secondary"
-                            Content="Release notes"
-                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                            IsEnabled="{Binding ViewModel.IsReleaseNotesLinkAvailable}"
-                            NavigateUri="{Binding ViewModel.ReleaseNotesLink}"
-                            Padding="0" />
+                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                            <ui:HyperlinkButton
+                                Appearance="Secondary"
+                                Command="{Binding ViewModel.ViewReleaseNotesCommand}"
+                                Content="What's new"
+                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                IsEnabled="{Binding ViewModel.IsReleaseNotesAvailable}"
+                                Padding="0" />
+                            <ui:TextBlock
+                                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                Margin="8,0,8,0"
+                                Text="•"
+                                VerticalAlignment="Center" />
+                            <ui:HyperlinkButton
+                                Appearance="Secondary"
+                                Content="GitHub Releases"
+                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                IsEnabled="{Binding ViewModel.IsReleaseNotesLinkAvailable}"
+                                NavigateUri="{Binding ViewModel.ReleaseNotesLink}"
+                                Padding="0" />
+                        </StackPanel>
                     </StackPanel>
                 </ui:CardControl.Header>
                 <StackPanel Orientation="Horizontal">

@@ -1,55 +1,83 @@
-name: Build and Package SnapClicker
+﻿name: Release & Package SnapClicker (Velopack)
 
 on:
   push:
+    tags:
+      - 'v*.*.*'
     branches:
       - release
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to pack & publish (e.g. 0.0.28)'
+        required: false
+        type: string
+
 permissions:
   contents: write
 
 jobs:
-  build:
+  build-and-release:
+    name: Build, Package & Publish Release
     runs-on: windows-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Get Version and Create JSON File
-        id: get-version
-        shell: pwsh
-        run: |
-          $version = (Select-String -Path SnapClicker.csproj -Pattern '<Version>([^<]+)' | % { $_.Matches.Groups[1].Value })
-          Write-Output "version=$version" >> $env:GITHUB_OUTPUT
-          @{ version = $version } | ConvertTo-Json | Out-File -FilePath version.json -Encoding utf8
-          Get-Content version.json
-
-      - name: Generate Changelog File
-        id: changelog-file
-        uses: TriPSs/conventional-changelog-action@v5
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          output-file: 'CHANGELOG.md'
-          version-file: 'version.json'
-          version-path: 'version'
-          skip-bump: true
-          skip-on-empty: false
-          preset: 'angular'
-          tag-prefix: 'v'
-          release-count: 1
-
-      - name: Set up .NET
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "9.x"
+          dotnet-version: "10.0.x"
+
+      - name: Determine Version
+        id: version_step
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch" -and "${{ github.event.inputs.version }}" -ne "") {
+            $ver = "${{ github.event.inputs.version }}".TrimStart("v")
+          } elseif ($env:GITHUB_REF_NAME -match '^v?([0-9]+\.[0-9]+\.[0-9]+.*)$') {
+            $ver = $Matches[1]
+          } else {
+            $ver = (Select-String -Path SnapClicker.csproj -Pattern '<Version>([^<]+)' | ForEach-Object { $_.Matches.Groups[1].Value })
+          }
+          Write-Output "version=$ver" >> $env:GITHUB_OUTPUT
+          Write-Host "Packaging SnapClicker version: $ver"
+
+      - name: Generate Release Notes (git-cliff)
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip header
+        env:
+          OUTPUT: RELEASE_NOTES.md
 
       - name: Publish .NET Project
-        run: dotnet publish -c Release --self-contained -r win-x64 -o ./publish
+        run: >
+          dotnet publish SnapClicker.csproj
+          -c Release
+          --self-contained
+          -r win-x64
+          -p:Version=${{ steps.version_step.outputs.version }}
+          -o ./publish
 
-      - name: Create Velopack Release
+      - name: Package with Velopack CLI
+        shell: pwsh
         run: |
           dotnet tool install -g vpk
           vpk download github --repoUrl https://github.com/p6laris/SnapClicker --token ${{ secrets.GITHUB_TOKEN }}
-          vpk pack --releaseNotes CHANGELOG.md --packId SnapClicker --packVersion ${{ steps.get-version.outputs.version }} --packDir ./publish --mainExe SnapClicker.exe --packTitle SnapClicker --icon ./SnapClicker1024.ico
-          vpk upload github --repoUrl https://github.com/p6laris/SnapClicker --publish --releaseName "SnapClicker ${{ steps.get-version.outputs.version }}" --tag v${{ steps.get-version.outputs.version }} --token ${{ secrets.GITHUB_TOKEN }}
+          vpk pack --packId SnapClicker `
+                   --packVersion ${{ steps.version_step.outputs.version }} `
+                   --packDir ./publish `
+                   --mainExe SnapClicker.exe `
+                   --packTitle "SnapClicker" `
+                   --icon ./SnapClicker1024.ico `
+                   --releaseNotes RELEASE_NOTES.md `
+                   --output ./Releases
+          vpk upload github --repoUrl https://github.com/p6laris/SnapClicker `
+                            --publish `
+                            --releaseName "SnapClicker v${{ steps.version_step.outputs.version }}" `
+                            --tag "v${{ steps.version_step.outputs.version }}" `
+                            --token ${{ secrets.GITHUB_TOKEN }}
