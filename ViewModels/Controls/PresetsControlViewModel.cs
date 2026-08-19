@@ -319,6 +319,10 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
                 };
 
                 int importedCount = 0;
+                int skippedCount = 0;
+                var existingPresets = await _presetRepository.GetAllPresetsAsync();
+                var registeredNames = new HashSet<string>(existingPresets.Select(p => p.Name), StringComparer.OrdinalIgnoreCase);
+
                 foreach (var filePath in ofd.FileNames)
                 {
                     var json = await File.ReadAllTextAsync(filePath);
@@ -346,6 +350,26 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
                         if (string.IsNullOrWhiteSpace(preset.Name))
                             preset.Name = Path.GetFileNameWithoutExtension(filePath);
 
+                        // Check if an exact identical duplicate already exists
+                        bool isExactDuplicate = existingPresets.Any(existing =>
+                            string.Equals(existing.Name, preset.Name, StringComparison.OrdinalIgnoreCase) &&
+                            AreActionsEqual(existing.RecordedActions, preset.RecordedActions));
+
+                        if (isExactDuplicate)
+                        {
+                            skippedCount++;
+                            continue;
+                        }
+
+                        // If same name exists but actions differ, make name unique
+                        string baseName = preset.Name;
+                        int copyIndex = 1;
+                        while (registeredNames.Contains(preset.Name))
+                        {
+                            preset.Name = $"{baseName} ({copyIndex++})";
+                        }
+
+                        registeredNames.Add(preset.Name);
                         await _presetRepository.AddPresetAsync(preset);
                         importedCount++;
                     }
@@ -354,12 +378,26 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
                 if (importedCount > 0)
                 {
                     await ReloadPresets();
+                    var message = skippedCount > 0
+                        ? $"Imported {importedCount} preset(s) ({skippedCount} duplicate(s) skipped)."
+                        : $"Successfully imported {importedCount} preset(s).";
+
                     _snackbarService.Show(
                         "Presets Imported",
-                        $"Successfully imported {importedCount} preset(s).",
+                        message,
                         ControlAppearance.Success,
                         new SymbolIcon(SymbolRegular.CheckmarkCircle20),
-                        TimeSpan.FromSeconds(3)
+                        TimeSpan.FromSeconds(4)
+                    );
+                }
+                else if (skippedCount > 0)
+                {
+                    _snackbarService.Show(
+                        "Already Exists",
+                        $"All selected presets already exist in your library.",
+                        ControlAppearance.Caution,
+                        new SymbolIcon(SymbolRegular.Info20),
+                        TimeSpan.FromSeconds(4)
                     );
                 }
             }
@@ -368,6 +406,17 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
         {
             ShowErrorMessage("Import Failed", $"Could not import presets: {ex.Message}", new SymbolIcon(SymbolRegular.ErrorCircle20));
         }
+    }
+
+    private static bool AreActionsEqual(List<RecordedAction> a, List<RecordedAction> b)
+    {
+        if (a.Count != b.Count) return false;
+        for (int i = 0; i < a.Count; i++)
+        {
+            if (a[i].Type != b[i].Type || a[i].X != b[i].X || a[i].Y != b[i].Y || a[i].Key != b[i].Key || a[i].IsBurstMode != b[i].IsBurstMode)
+                return false;
+        }
+        return true;
     }
     
     private void ShowErrorMessage(string title, string content,SymbolIcon icon ) =>
