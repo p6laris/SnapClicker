@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Views.Windows;
+namespace SnapClicker.Views.Windows;
 
 public partial class RecordWindow : Window
 {
@@ -15,6 +15,14 @@ public partial class RecordWindow : Window
         ViewModel.OnCursorPositionChanged += UpdateWindowPosition;
         DataContext = this;
         
+        IsVisibleChanged += (s, e) =>
+        {
+            if ((bool)e.NewValue)
+                ViewModel.StartTimer();
+            else
+                ViewModel.StopTimer();
+        };
+
         SystemThemeWatcher.Watch(this);
     }
     

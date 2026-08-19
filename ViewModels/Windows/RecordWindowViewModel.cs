@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.ViewModels.Windows;
+namespace SnapClicker.ViewModels.Windows;
 
 public partial class RecordWindowViewModel : ObservableObject ,IDisposable
 {
@@ -24,8 +24,18 @@ public partial class RecordWindowViewModel : ObservableObject ,IDisposable
         _recorderManagerService.OnNewRecord += OnAddNewRecord;
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
         _timer.Tick += UpdatePosition;
-        _timer.Start();
-        
+    }
+
+    public void StartTimer()
+    {
+        if (!_timer.IsEnabled)
+            _timer.Start();
+    }
+
+    public void StopTimer()
+    {
+        if (_timer.IsEnabled)
+            _timer.Stop();
     }
 
     private void OnAddNewRecord(RecordedAction record)
@@ -36,27 +46,18 @@ public partial class RecordWindowViewModel : ObservableObject ,IDisposable
 
     private void UpdatePosition(object? sender, EventArgs e)
     {
-        if (GetCursorPos(out POINT cursorPos))
+        if (Methods.GetCursorPos(out PointStruct cursorPos))
         {
             CursorX = cursorPos.X;
             CursorY = cursorPos.Y;
             OnCursorPositionChanged?.Invoke(cursorPos.X, cursorPos.Y);
         }
     }
-    
-    [DllImport("user32.dll")]
-    private static extern bool GetCursorPos(out POINT lpPoint);
-    
-    [StructLayout(LayoutKind.Sequential)]
-    private struct POINT
-    {
-        public int X;
-        public int Y;
-    }
 
     public void Dispose()
     {
+        StopTimer();
+        _timer.Tick -= UpdatePosition;
         _recorderManagerService.OnNewRecord -= OnAddNewRecord;
-        _recorderManagerService.StopRecording();
     }
 }

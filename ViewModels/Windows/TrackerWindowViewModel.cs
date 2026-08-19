@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.ViewModels.Windows;
+namespace SnapClicker.ViewModels.Windows;
 
 public partial class TrackerWindowViewModel : ObservableObject, IDisposable
 {
@@ -18,10 +18,8 @@ public partial class TrackerWindowViewModel : ObservableObject, IDisposable
         _trackerManagerService = trackerManagerService;
         _trackerManagerService.OnTrackingModeChanged += TrackerManagerServiceOnOnTrackingModeChanged;
         
-        
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
         _timer.Tick += UpdatePosition;
-        _timer.Start();
     }
 
     private void UpdatePosition(object? sender, EventArgs e)
@@ -29,37 +27,41 @@ public partial class TrackerWindowViewModel : ObservableObject, IDisposable
         //If it was for tracking mouse then we need to change the window location
         if (_trackerManagerService.CurrentTrackingMode == TrackingMode.Mouse)
         {
-            if (GetCursorPos(out POINT cursorPos))
+            if (Methods.GetCursorPos(out PointStruct cursorPos))
             {
                 CursorX = cursorPos.X;
                 CursorY = cursorPos.Y;
                 OnCursorPositionChanged?.Invoke(cursorPos.X, cursorPos.Y);
             }
         }
-
     }
 
     private void TrackerManagerServiceOnOnTrackingModeChanged(TrackingMode mode)
     {
-        if(mode == TrackingMode.Mouse || mode == TrackingMode.None)
+        if (mode == TrackingMode.Mouse)
+        {
             IsForMouseTracking = true;
-        else if(mode == TrackingMode.Keyboard)
+            if (!_timer.IsEnabled)
+                _timer.Start();
+        }
+        else if (mode == TrackingMode.Keyboard)
+        {
             IsForMouseTracking = false;
-    }
-    
-    [DllImport("user32.dll")]
-    private static extern bool GetCursorPos(out POINT lpPoint);
-    
-    [StructLayout(LayoutKind.Sequential)]
-    private struct POINT
-    {
-        public int X;
-        public int Y;
+            if (_timer.IsEnabled)
+                _timer.Stop();
+        }
+        else
+        {
+            IsForMouseTracking = true;
+            if (_timer.IsEnabled)
+                _timer.Stop();
+        }
     }
 
     public void Dispose()
     {
+        _timer.Stop();
+        _timer.Tick -= UpdatePosition;
         _trackerManagerService.OnTrackingModeChanged -= TrackerManagerServiceOnOnTrackingModeChanged;
-       _trackerManagerService.Dispose();
     }
 }

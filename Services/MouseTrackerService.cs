@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Services;
+namespace SnapClicker.Services;
 
 /// <summary>Tracks mouse movement positions.</summary>
 public class MouseTrackerService : IMouseTrackerService, IDisposable
@@ -11,18 +11,22 @@ public class MouseTrackerService : IMouseTrackerService, IDisposable
     /// <inheritdoc />
     public void StartTracking()
     {
-        _mouseHook.OnMouseAction += (x, y, action, _) =>
-        {
-            if(action != ActionType.MouseMove)
-                OnMouseMove?.Invoke(x, y);
-        };
+        _mouseHook.OnMouseAction -= HandleMouseAction;
+        _mouseHook.OnMouseAction += HandleMouseAction;
         _mouseHook.Start();
     }
 
     /// <inheritdoc />
     public void StopTracking()
     {
+        _mouseHook.OnMouseAction -= HandleMouseAction;
         _mouseHook.Stop();
+    }
+
+    private void HandleMouseAction(int x, int y, ActionType action, TimeSpan timestamp)
+    {
+        if (action != ActionType.MouseMove)
+            OnMouseMove?.Invoke(x, y);
     }
 
     public void Dispose()

@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Services;
+namespace SnapClicker.Services;
 
 public class KeyboardTrackerService : IKeyboardTrackerService, IDisposable
 {
@@ -10,14 +10,21 @@ public class KeyboardTrackerService : IKeyboardTrackerService, IDisposable
     /// <inheritdoc />
     public void StartTracking()
     {
-        _keyboardHook.OnKeyDown += (key, _) => OnKeyDownOrUp?.Invoke(key);
+        _keyboardHook.OnKeyDown -= HandleKeyDown;
+        _keyboardHook.OnKeyDown += HandleKeyDown;
         _keyboardHook.Start();
     }
 
     /// <inheritdoc />
     public void StopTracking()
     {
+        _keyboardHook.OnKeyDown -= HandleKeyDown;
         _keyboardHook.Stop();
+    }
+
+    private void HandleKeyDown(Key key, TimeSpan timestamp)
+    {
+        OnKeyDownOrUp?.Invoke(key);
     }
 
     public void Dispose()

@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Services;
+namespace SnapClicker.Services;
 
 /// <summary>
 /// Provides services for calculating and adjusting window positions on screen,
@@ -6,16 +6,6 @@
 /// </summary>
 public class WindowPositionService
 {
-    private static readonly double DpiScale;
-
-    /// <summary>
-    /// Static constructor that initializes the DPI scale factor.
-    /// </summary>
-    static WindowPositionService()
-    {
-        DpiScale = GetDpiScale();
-    }
-
     /// <summary>
     /// Calculates the optimal window position based on screen coordinates and window dimensions.
     /// </summary>
@@ -35,8 +25,9 @@ public class WindowPositionService
     /// </remarks>
     public (double Left, double Top) GetCorrectWindowPosition(double x, double y, double width, double height)
     {
-        double scaledX = x / DpiScale;
-        double scaledY = y / DpiScale;
+        double dpiScale = GetDpiScale();
+        double scaledX = x / dpiScale;
+        double scaledY = y / dpiScale;
 
         if (double.IsNaN(scaledX) || double.IsInfinity(scaledX) ||
             double.IsNaN(scaledY) || double.IsInfinity(scaledY))
@@ -60,8 +51,20 @@ public class WindowPositionService
     
     private static double GetDpiScale()
     {
-        var wnd = Application.Current.MainWindow;
-        var dpi = VisualTreeHelper.GetDpi(wnd);
-        return dpi.DpiScaleX;
+        var wnd = Application.Current?.MainWindow;
+        if (wnd != null)
+        {
+            try
+            {
+                var dpi = VisualTreeHelper.GetDpi(wnd);
+                if (dpi.DpiScaleX > 0)
+                    return dpi.DpiScaleX;
+            }
+            catch
+            {
+                // Fallback to default scale
+            }
+        }
+        return 1.0;
     }
 }
