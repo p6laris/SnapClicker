@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Native;
+namespace SnapClicker.Native;
 
 public static class Constants
 { 
@@ -9,8 +9,11 @@ public static class Constants
         public const int WmSyskeydown = 0x0104;
         public const int WmSyskeyup = 0x0105;
         public const int WmLbuttondown = 0x0201;
+        public const int WmLbuttonup = 0x0202;
         public const int WmRbuttondown = 0x0204;
+        public const int WmRbuttonup = 0x0205;
         public const int WmMbuttondown = 0x0207;
+        public const int WmMbuttonup = 0x0208;
         public const int WmMousemove = 0x0200;
 
         // Mouse event flags

@@ -31,7 +31,7 @@ namespace SnapClicker.Services
 
             foreach (var action in actions)
             {
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested || IsCornerFailsafeTriggered())
                     break;
 
                 if (action.IsBurstMode)
@@ -46,7 +46,7 @@ namespace SnapClicker.Services
                     await WaitAbsoluteAsync(targetDelayMs, cancellationToken);
                 }
 
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested || IsCornerFailsafeTriggered())
                     break;
 
                 ExecuteAction(action);
@@ -56,6 +56,15 @@ namespace SnapClicker.Services
             }
 
             _stopwatch.Stop();
+        }
+
+        private static bool IsCornerFailsafeTriggered()
+        {
+            if (Methods.GetCursorPos(out var pt))
+            {
+                return pt.X <= 5 && pt.Y <= 5;
+            }
+            return false;
         }
 
         private async ValueTask WaitAbsoluteAsync(double targetElapsedMs, CancellationToken cancellationToken)
@@ -110,11 +119,29 @@ namespace SnapClicker.Services
                 case ActionType.LeftMouseClick:
                     MouseHook.SimulateLeftClick(action.X, action.Y);
                     break;
+                case ActionType.LeftMouseDown:
+                    MouseHook.SimulateLeftDown(action.X, action.Y);
+                    break;
+                case ActionType.LeftMouseUp:
+                    MouseHook.SimulateLeftUp(action.X, action.Y);
+                    break;
                 case ActionType.RightMouseClick:
                     MouseHook.SimulateRightClick(action.X, action.Y);
                     break;
+                case ActionType.RightMouseDown:
+                    MouseHook.SimulateRightDown(action.X, action.Y);
+                    break;
+                case ActionType.RightMouseUp:
+                    MouseHook.SimulateRightUp(action.X, action.Y);
+                    break;
                 case ActionType.MiddleMouseClick:
                     MouseHook.SimulateMiddleClick(action.X, action.Y);
+                    break;
+                case ActionType.MiddleMouseDown:
+                    MouseHook.SimulateMiddleDown(action.X, action.Y);
+                    break;
+                case ActionType.MiddleMouseUp:
+                    MouseHook.SimulateMiddleUp(action.X, action.Y);
                     break;
                 case ActionType.MouseMove:
                     Methods.SetCursorPos(action.X, action.Y);
