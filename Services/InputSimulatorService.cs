@@ -8,11 +8,11 @@ namespace SnapClicker.Services
         private readonly ILogger<InputSimulatorService> _logger;
         private readonly Stopwatch _stopwatch;
         private double _interval;
-        private bool _isPreciseDelaysEnabled;
-        private bool _isTimingJitterEnabled;
-        private int _timingJitterRangeMs;
-        private bool _isCoordinateJitterEnabled;
-        private int _coordinateJitterRadiusPx;
+        private volatile bool _isPreciseDelaysEnabled;
+        private volatile bool _isTimingJitterEnabled;
+        private volatile int _timingJitterRangeMs;
+        private volatile bool _isCoordinateJitterEnabled;
+        private volatile int _coordinateJitterRadiusPx;
 
         public InputSimulatorService(ILogger<InputSimulatorService> logger)
         {
@@ -172,7 +172,7 @@ namespace SnapClicker.Services
                     if (remaining > 2)
                         await Task.Delay((int)Math.Min(remaining, 16), cancellationToken);
                     else
-                        Thread.SpinWait(20);
+                        Thread.Sleep(0);
                 }
             }
         }
@@ -198,7 +198,7 @@ namespace SnapClicker.Services
                     if (remaining > 2)
                         await Task.Delay(1, cancellationToken);
                     else
-                        Thread.SpinWait(20);
+                        Thread.Sleep(0);
                 }
             }
         }
@@ -273,6 +273,7 @@ namespace SnapClicker.Services
             WeakReferenceMessenger.Default.Unregister<PreciseDelayMessage>(this);
             WeakReferenceMessenger.Default.Unregister<TimingJitterMessage>(this);
             WeakReferenceMessenger.Default.Unregister<CoordinateJitterMessage>(this);
+            WeakReferenceMessenger.Default.Unregister<PlaybackSpeedMessage>(this);
         }
     }
     

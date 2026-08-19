@@ -430,6 +430,7 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
     
     public void Dispose()
     {
+        PresetsView?.Dispose();
         WeakReferenceMessenger.Default.Unregister<PresetSavedMessage>(this);
     }
 }

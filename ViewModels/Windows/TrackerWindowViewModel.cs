@@ -24,13 +24,14 @@ public partial class TrackerWindowViewModel : ObservableObject, IDisposable
 
     private void UpdatePosition(object? sender, EventArgs e)
     {
-        //If it was for tracking mouse then we need to change the window location
         if (_trackerManagerService.CurrentTrackingMode == TrackingMode.Mouse)
         {
             if (Methods.GetCursorPos(out PointStruct cursorPos))
             {
-                CursorX = cursorPos.X;
-                CursorY = cursorPos.Y;
+                if (CursorX != cursorPos.X)
+                    CursorX = cursorPos.X;
+                if (CursorY != cursorPos.Y)
+                    CursorY = cursorPos.Y;
                 OnCursorPositionChanged?.Invoke(cursorPos.X, cursorPos.Y);
             }
         }
