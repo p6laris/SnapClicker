@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Helpers;
+namespace SnapClicker.Helpers;
 
 public class BoolToVisibilityConverter : IValueConverter
 {
@@ -6,7 +6,14 @@ public class BoolToVisibilityConverter : IValueConverter
     {
         if (value is bool boolValue)
         {
-            bool invert = parameter != null && bool.Parse(parameter.ToString() ?? throw new InvalidOperationException());
+            bool invert = false;
+            if (parameter != null)
+            {
+                if (parameter is bool b)
+                    invert = b;
+                else
+                    bool.TryParse(parameter.ToString(), out invert);
+            }
             return (boolValue ^ invert) ? Visibility.Visible : Visibility.Collapsed;
         }
         return Visibility.Collapsed;

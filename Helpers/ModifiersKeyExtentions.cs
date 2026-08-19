@@ -1,16 +1,12 @@
-﻿namespace SnapClicker.Helpers;
+using System.Numerics;
+
+namespace SnapClicker.Helpers;
 
 public static class ModifiersKeyExtentions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int BitCount(this ModifierKeys modifiers)
     {
-        uint n = (uint)modifiers;
-        int count = 0;
-        while (n != 0)
-        {
-            n &= (n - 1); // Clears the lowest set bit
-            count++;
-        }
-        return count;
+        return BitOperations.PopCount((uint)modifiers);
     }
 }

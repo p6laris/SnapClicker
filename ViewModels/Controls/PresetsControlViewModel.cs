@@ -43,7 +43,7 @@ public partial class PresetsControlViewModel : ObservableObject, IDisposable
 
             _presetsList.Clear();
             _presetsList.AddRange(presets);
-            HasPresets = _presetsList.Any();
+            HasPresets = _presetsList.Count > 0;
         }
         catch
         {

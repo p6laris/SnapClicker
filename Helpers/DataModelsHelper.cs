@@ -4,31 +4,57 @@ public static class DataModelsHelper
 {
     public static PresetsDto ToPresetsDto(this Preset preset)
     {
-        var presetsDto = new PresetsDto()
+        var actions = preset.RecordedActions;
+        List<RecordedAction> clonedActions;
+        if (actions != null && actions.Count > 0)
+        {
+            clonedActions = new List<RecordedAction>(actions.Count);
+            for (int i = 0; i < actions.Count; i++)
+            {
+                clonedActions.Add(actions[i] with { });
+            }
+        }
+        else
+        {
+            clonedActions = new List<RecordedAction>(0);
+        }
+
+        return new PresetsDto
         {
             Id = preset.Id,
             Name = preset.Name,
             IsRepetitive = preset.IsRepetitive,
             RepeatCount = preset.RepeatCount,
-            RecordedActions = preset.RecordedActions?.Select(a => a with { }).ToList() ?? new List<RecordedAction>(),
+            RecordedActions = clonedActions,
             CreatedDate = preset.CreatedDate,
         };
-                            
-        return presetsDto;
     }
 
     public static Preset ToPreset(this PresetsDto presetsDto)
     {
-        var preset = new Preset()
+        var actions = presetsDto.RecordedActions;
+        List<RecordedAction> clonedActions;
+        if (actions != null && actions.Count > 0)
+        {
+            clonedActions = new List<RecordedAction>(actions.Count);
+            for (int i = 0; i < actions.Count; i++)
+            {
+                clonedActions.Add(actions[i] with { });
+            }
+        }
+        else
+        {
+            clonedActions = new List<RecordedAction>(0);
+        }
+
+        return new Preset
         {
             Id = presetsDto.Id,
             Name = presetsDto.Name,
             IsRepetitive = presetsDto.IsRepetitive,
             RepeatCount = presetsDto.RepeatCount,
-            RecordedActions = presetsDto.RecordedActions?.Select(a => a with { }).ToList() ?? new List<RecordedAction>(),
+            RecordedActions = clonedActions,
             CreatedDate = presetsDto.CreatedDate
         };
-        
-        return preset;
     }
 }

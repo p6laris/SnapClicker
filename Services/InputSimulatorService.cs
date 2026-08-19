@@ -56,11 +56,21 @@ namespace SnapClicker.Services
         {
             _logger.LogInformation("Starting input simulation for {Count} actions (Speed={Speed}x, TimingJitter={TimingJitter}, CoordJitter={CoordJitter}).", 
                 actions.Count, _speedMultiplier, _isTimingJitterEnabled, _isCoordinateJitterEnabled);
-            var baseTime = actions.FirstOrDefault(a => !a.IsBurstMode)?.Timestamp ?? TimeSpan.Zero;
+
+            TimeSpan baseTime = TimeSpan.Zero;
+            for (int i = 0; i < actions.Count; i++)
+            {
+                if (!actions[i].IsBurstMode)
+                {
+                    baseTime = actions[i].Timestamp;
+                    break;
+                }
+            }
+
             _stopwatch.Restart();
             double speed = Math.Max(0.1, _speedMultiplier);
 
-            foreach (var action in actions)
+            for (int i = 0; i < actions.Count; i++)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -73,6 +83,8 @@ namespace SnapClicker.Services
                     _logger.LogWarning("Simulation aborted by emergency panic failsafe (Escape key / Corner).");
                     break;
                 }
+
+                var action = actions[i];
 
                 if (action.IsBurstMode)
                 {

@@ -86,14 +86,14 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
     private void AddNewRecord(RecordedAction action)
     {
         _recordedList.Add(action);
-        HasRecords = _recordedList.Any();
+        HasRecords = _recordedList.Count > 0;
         UpdateRecordedActionsHeader();
     }
     
     [RelayCommand]
     public async Task StartRecording()
     {
-        if (_recordedList.Any())
+        if (_recordedList.Count > 0)
             ClearRecords();
 
         HasRecords = false;
@@ -146,7 +146,7 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
         if(HasRecords)
             DeleteRecordsByHotKey();
         
-        HasRecords = _recordedList.Any();
+        HasRecords = _recordedList.Count > 0;
         UpdateRecordedActionsHeader();
         _recordWindow.Hide();
         _recorderManagerService.StopRecording();   
