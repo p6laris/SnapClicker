@@ -58,6 +58,20 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
         _trackerWindow.Show();
     }
 
+    [RelayCommand]
+    public void SelectRegion()
+    {
+        MinimizeMainWindow();
+        var regionWindow = new RegionSelectorWindow();
+        if (regionWindow.ShowDialog() == true)
+        {
+            var region = regionWindow.SelectedRegion;
+            CursorX = (int)(region.X + region.Width / 2);
+            CursorY = (int)(region.Y + region.Height / 2);
+        }
+        RestoreMainWindow();
+    }
+
     private void OnTrackingMouseCursor(int x, int y)
     {
         CursorX = x;
@@ -83,10 +97,7 @@ public partial class ManualRecordingControlViewModel : ObservableObject, IDispos
     [RelayCommand]
     public async Task SaveRecording()
     {
-        bool isMouseAction = SelectedActionType is ActionType.LeftMouseClick 
-            or ActionType.RightMouseClick 
-            or ActionType.MiddleMouseClick 
-            or ActionType.MouseMove;
+        bool isMouseAction = SelectedActionType is not (ActionType.KeyDown or ActionType.KeyUp);
 
         var preset = new Preset
         {
