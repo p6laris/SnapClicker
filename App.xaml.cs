@@ -5,13 +5,48 @@ namespace SnapClicker
     /// </summary>
     public partial class App
     {
-        // The.NET Generic Host provides dependency injection, configuration, logging, and other services.
-        // https://docs.microsoft.com/dotnet/core/extensions/generic-host
-        // https://docs.microsoft.com/dotnet/core/extensions/dependency-injection
-        // https://docs.microsoft.com/dotnet/core/extensions/configuration
-        // https://docs.microsoft.com/dotnet/core/extensions/logging
+        static App()
+        {
+            var logDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "SnapClicker",
+                "Logs"
+            );
+
+            if (!Directory.Exists(logDir))
+                Directory.CreateDirectory(logDir);
+
+            var logFilePath = Path.Combine(logDir, "snapclicker-.log");
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.File(
+                    logFilePath,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: 7,
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+                )
+                .CreateLogger();
+
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                if (e.ExceptionObject is Exception ex)
+                    Log.Fatal(ex, "Unhandled AppDomain Fatal Exception");
+                else
+                    Log.Fatal("Unhandled AppDomain Fatal Exception: {ExceptionObject}", e.ExceptionObject);
+                Log.CloseAndFlush();
+            };
+
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+            {
+                Log.Error(e.Exception, "Unobserved Task Exception");
+                e.SetObserved();
+            };
+        }
+
         private static readonly IHost _host = Host
             .CreateDefaultBuilder()
+            .UseSerilog()
             .ConfigureAppConfiguration(c => { c.SetBasePath(Path.GetDirectoryName(AppContext.BaseDirectory) ?? AppContext.BaseDirectory); })
             .ConfigureServices((context, services) =>
             {
@@ -81,10 +116,27 @@ namespace SnapClicker
         /// </summary>
         private async void OnStartup(object sender, StartupEventArgs e)
         {
-            VelopackApp.Build().Run();
+            Log.Information("SnapClicker application starting up.");
+
+            try
+            {
+                VelopackApp.Build().Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Velopack initialization warning");
+            }
             
-            await SetDatabase();
-            await _host.StartAsync();
+            try
+            {
+                await SetDatabase();
+                await _host.StartAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Failed during application startup initialization.");
+                throw;
+            }
         }
 
         private async ValueTask SetDatabase()
@@ -98,9 +150,11 @@ namespace SnapClicker
         /// </summary>
         private async void OnExit(object sender, ExitEventArgs e)
         {
-            await _host.StopAsync();
+            Log.Information("SnapClicker application shutting down.");
 
+            await _host.StopAsync();
             _host.Dispose();
+            Log.CloseAndFlush();
         }
 
         /// <summary>
@@ -108,7 +162,16 @@ namespace SnapClicker
         /// </summary>
         private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
+            Log.Error(e.Exception, "Unhandled Dispatcher Exception on UI thread");
+
+            System.Windows.MessageBox.Show(
+                $"An unexpected error occurred:\n{e.Exception.Message}\n\nCheck logs in %AppData%\\SnapClicker\\Logs for details.",
+                "SnapClicker Error",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error
+            );
+
+            e.Handled = true;
         }
     }
 }

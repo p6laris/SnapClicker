@@ -1,4 +1,4 @@
-﻿global using System;
+global using System;
 global using System.IO;
 global using System.Xml.Linq;
 global using System.Windows;
@@ -45,4 +45,6 @@ global using Microsoft.EntityFrameworkCore.Infrastructure;
 global using Microsoft.Extensions.Configuration;
 global using Velopack;
 global using Velopack.Sources;
+global using Serilog;
+global using Microsoft.Extensions.Logging;
 

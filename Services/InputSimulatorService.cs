@@ -5,12 +5,14 @@ namespace SnapClicker.Services
     /// </summary>
     public class InputSimulatorService : IInputSimulatorService, IDisposable
     {
+        private readonly ILogger<InputSimulatorService> _logger;
         private readonly Stopwatch _stopwatch;
         private double _interval;
         private bool _isPreciseDelaysEnabled;
 
-        public InputSimulatorService()
+        public InputSimulatorService(ILogger<InputSimulatorService> logger)
         {
+            _logger = logger;
             _stopwatch = new Stopwatch();
             
             _interval = AppConfig.ActionInterval;
@@ -26,13 +28,23 @@ namespace SnapClicker.Services
         /// <inheritdoc />
         public async ValueTask Simulate(List<RecordedAction> actions, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Starting input simulation for {Count} actions.", actions.Count);
             var baseTime = actions.FirstOrDefault(a => !a.IsBurstMode)?.Timestamp ?? TimeSpan.Zero;
             _stopwatch.Restart();
 
             foreach (var action in actions)
             {
-                if (cancellationToken.IsCancellationRequested || IsCornerFailsafeTriggered())
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    _logger.LogInformation("Simulation canceled by user.");
                     break;
+                }
+
+                if (IsCornerFailsafeTriggered())
+                {
+                    _logger.LogWarning("Simulation aborted by emergency corner failsafe.");
+                    break;
+                }
 
                 if (action.IsBurstMode)
                 {
@@ -56,6 +68,7 @@ namespace SnapClicker.Services
             }
 
             _stopwatch.Stop();
+            _logger.LogInformation("Simulation finished. Total elapsed: {ElapsedMs} ms.", _stopwatch.ElapsedMilliseconds);
         }
 
         private static bool IsCornerFailsafeTriggered()
