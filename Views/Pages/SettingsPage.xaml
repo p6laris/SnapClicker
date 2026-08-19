@@ -150,6 +150,69 @@
             </ui:CardControl>
         </Grid>
 
+        <!--  Pre-Start Countdown  -->
+        <ui:CardExpander
+            Icon="{ui:SymbolIcon Timer24}"
+            IsExpanded="{Binding ViewModel.IsCountdownExpanded, Mode=TwoWay}"
+            Margin="4">
+            <ui:CardExpander.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Pre-Start Countdown"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="Show a visual on-screen countdown overlay before starting playback."
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                    <ui:ToggleSwitch
+                        Grid.Column="1"
+                        IsChecked="{Binding ViewModel.IsCountdownEnabled, Mode=TwoWay}"
+                        Margin="0,0,8,0" />
+                </Grid>
+            </ui:CardExpander.Header>
+            <StackPanel>
+                <Border
+                    Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1,1,1,0"
+                    CornerRadius="8,8,0,0"
+                    Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <ui:TextBlock
+                                FontTypography="Body"
+                                Text="Countdown Duration" />
+                            <ui:TextBlock
+                                Appearance="Secondary"
+                                FontTypography="Caption"
+                                Text="Duration of the on-screen countdown in seconds (1 to 10 seconds)." />
+                        </StackPanel>
+                        <ui:NumberBox
+                            Grid.Column="1"
+                            MaxDecimalPlaces="0"
+                            Maximum="10"
+                            Minimum="1"
+                            PlaceholderText="3"
+                            Value="{Binding ViewModel.CountdownSeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ui:CardExpander>
+
         <!--  Mouse Movement  -->
         <Grid>
             <Grid.ColumnDefinitions>

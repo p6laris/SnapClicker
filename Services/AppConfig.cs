@@ -88,6 +88,16 @@ namespace SnapClicker.Services
             get => double.TryParse(GetAppSetting("PlaybackSpeed"), NumberStyles.Any, CultureInfo.InvariantCulture, out var value) && value > 0 ? value : 1.0;
             set => UpdateAppSetting("PlaybackSpeed", value.ToString(CultureInfo.InvariantCulture));
         }
+        public static bool IsCountdownEnabled
+        {
+            get => !bool.TryParse(GetAppSetting("IsCountdownEnabled"), out var value) || value;
+            set => UpdateAppSetting("IsCountdownEnabled", value.ToString());
+        }
+        public static int CountdownSeconds
+        {
+            get => int.TryParse(GetAppSetting("CountdownSeconds"), out var value) && value > 0 ? value : 3;
+            set => UpdateAppSetting("CountdownSeconds", value.ToString());
+        }
         public static bool IsTimingJitterEnabled
         {
             get => bool.TryParse(GetAppSetting("IsTimingJitterEnabled"), out var value) && value;

@@ -23,6 +23,9 @@ namespace SnapClicker.ViewModels.Pages
         [ObservableProperty] private bool _isCoordinateJitterEnabled;
         [ObservableProperty] private bool _isCoordinateJitterExpanded;
         [ObservableProperty] private double _coordinateJitterRadiusPx = 3;
+        [ObservableProperty] private bool _isCountdownEnabled;
+        [ObservableProperty] private bool _isCountdownExpanded;
+        [ObservableProperty] private double _countdownSeconds = 3;
         [ObservableProperty] private double _actionInterval;
         [ObservableProperty] private string _selectedPlaybackSpeedOption;
         [ObservableProperty] private string _lastCheckedUpdateTime = string.Empty;
@@ -79,6 +82,9 @@ namespace SnapClicker.ViewModels.Pages
             IsCoordinateJitterEnabled = AppConfig.IsCoordinateJitterEnabled;
             IsCoordinateJitterExpanded = AppConfig.IsCoordinateJitterEnabled;
             CoordinateJitterRadiusPx = AppConfig.CoordinateJitterRadiusPx;
+            IsCountdownEnabled = AppConfig.IsCountdownEnabled;
+            IsCountdownExpanded = AppConfig.IsCountdownEnabled;
+            CountdownSeconds = AppConfig.CountdownSeconds;
             ActionInterval = AppConfig.ActionInterval;
             SelectedPlaybackSpeedOption = FormatSpeedOption(AppConfig.PlaybackSpeed);
             LastCheckedUpdateTime = $"Last Checked {AppConfig.LastCheckedUpdate}";
@@ -206,6 +212,25 @@ namespace SnapClicker.ViewModels.Pages
         {
             AppConfig.CoordinateJitterRadiusPx = (int)value;
             WeakReferenceMessenger.Default.Send(new CoordinateJitterMessage((IsCoordinateJitterEnabled, (int)value)));
+        }
+
+        partial void OnIsCountdownEnabledChanged(bool value)
+        {
+            IsCountdownExpanded = value;
+            AppConfig.IsCountdownEnabled = value;
+        }
+
+        partial void OnIsCountdownExpandedChanged(bool value)
+        {
+            if (value && !IsCountdownEnabled)
+            {
+                IsCountdownExpanded = false;
+            }
+        }
+
+        partial void OnCountdownSecondsChanged(double value)
+        {
+            AppConfig.CountdownSeconds = (int)value;
         }
 
         partial void OnSelectedPlaybackSpeedOptionChanged(string value)

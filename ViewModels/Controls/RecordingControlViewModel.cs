@@ -14,6 +14,9 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
     
     [ObservableProperty] private bool _hasRecords;
     [ObservableProperty] private bool _isRecording;
+    [ObservableProperty] private string _recordedActionsHeader = "Recorded actions";
+
+    private readonly CountdownWindow _countdownWindow;
 
     private ObservableList<RecordedAction> _recordedList = new();
     public NotifyCollectionChangedSynchronizedViewList<RecordedAction> RecordsView { get; set; }
@@ -25,7 +28,8 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
         INavigationService navigationService,
         IHotKeyManager hotKeyManager,
         ISnackbarService snackbarService,
-        RecordWindow recordWindow)
+        RecordWindow recordWindow,
+        CountdownWindow countdownWindow)
     {
         _contentDialogService = contentDialogService;
         _recorderManagerService = recorderManagerService;
@@ -34,6 +38,7 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
         _hotKeyManager = hotKeyManager;
         _snackbarService = snackbarService;
         _recordWindow = recordWindow;
+        _countdownWindow = countdownWindow;
 
         RecordsView =
             _recordedList.ToNotifyCollectionChanged(SynchronizationContextCollectionEventDispatcher.Current);
@@ -82,6 +87,7 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
     {
         _recordedList.Add(action);
         HasRecords = _recordedList.Any();
+        UpdateRecordedActionsHeader();
     }
     
     [RelayCommand]
@@ -90,30 +96,69 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
         if (_recordedList.Any())
             ClearRecords();
 
+        HasRecords = false;
+        UpdateRecordedActionsHeader();
+        ChangeWindowsState(WindowState.Minimized);
+
+        if (AppConfig.IsCountdownEnabled && AppConfig.CountdownSeconds > 0)
+        {
+            _countdownWindow.Show();
+            for (int sec = AppConfig.CountdownSeconds; sec >= 1; sec--)
+            {
+                if ((Methods.GetAsyncKeyState(0x1B) & 0x8000) != 0)
+                {
+                    _countdownWindow.Hide();
+                    ChangeWindowsState(WindowState.Normal);
+                    return;
+                }
+
+                _countdownWindow.ViewModel.CountdownText = sec.ToString();
+                _countdownWindow.ViewModel.SubText = $"Capturing in {sec}s...";
+                await Task.Delay(1000);
+            }
+
+            if ((Methods.GetAsyncKeyState(0x1B) & 0x8000) != 0)
+            {
+                _countdownWindow.Hide();
+                ChangeWindowsState(WindowState.Normal);
+                return;
+            }
+
+            _countdownWindow.ViewModel.CountdownText = "GO!";
+            _countdownWindow.ViewModel.SubText = "Capturing active!";
+            await Task.Delay(350);
+            _countdownWindow.Hide();
+        }
+
         _recordWindow.Show();
         SetCursorPositionToCenter();
 
-        HasRecords = false;
         IsRecording = true;
-
-        ChangeWindowsState(WindowState.Minimized);
-        
-        await Task.Delay(500);
+        await Task.Delay(300);
         _recorderManagerService.StartRecording();
     }
 
     [RelayCommand]
     public void StopRecording()
     {
+        _countdownWindow.Hide();
         IsRecording = false;
         if(HasRecords)
             DeleteRecordsByHotKey();
         
         HasRecords = _recordedList.Any();
+        UpdateRecordedActionsHeader();
         _recordWindow.Hide();
         _recorderManagerService.StopRecording();   
         
         ChangeWindowsState(WindowState.Normal);
+    }
+
+    private void UpdateRecordedActionsHeader()
+    {
+        RecordedActionsHeader = HasRecords 
+            ? $"Recorded actions ({_recordedList.Count})" 
+            : "Recorded actions";
     }
 
     private void DeleteRecordsByHotKey() 
@@ -154,6 +199,7 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
     {
         _recordedList.Clear();
         HasRecords = false; 
+        UpdateRecordedActionsHeader();
     }
 
     [RelayCommand]

@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     d:DataContext="{d:DesignInstance local:RecordingControl,
                                      IsDesignTimeCreatable=False}"
     mc:Ignorable="d"
@@ -56,7 +56,7 @@
         <!--  Recorded action log  -->
         <ui:CardExpander
             CornerRadius="0,0,8,8"
-            Header="Recorded actions"
+            Header="{Binding ViewModel.RecordedActionsHeader}"
             IsEnabled="{Binding ViewModel.HasRecords, Mode=TwoWay}"
             Margin="0,1,0,0">
             <ui:ListView

@@ -74,6 +74,7 @@ namespace SnapClicker
                 services.AddSingleton<IRecorderManagerService, RecorderManagerService>();
                 services.AddSingleton<TrackerWindow>();
                 services.AddSingleton<RecordWindow>();
+                services.AddSingleton<CountdownWindow>();
                 services.AddTransient<WindowPositionService>();
                 //Simulator services
                 services.AddSingleton<IInputSimulatorService, InputSimulatorService>();
@@ -92,6 +93,7 @@ namespace SnapClicker
                 services.AddSingleton<ManualRecordingControlViewModel>();
                 services.AddSingleton<PresetActionEditViewModel>();
                 services.AddSingleton<RecordWindowViewModel>();
+                services.AddSingleton<CountdownWindowViewModel>();
                 services.AddSingleton<RecordingControlViewModel>();
                 services.AddSingleton<PresetsControlViewModel>();
                 services.AddSingleton<RecordPage>();
