@@ -1,4 +1,4 @@
-﻿namespace SnapClicker.Models;
+namespace SnapClicker.Models;
 
 public record RecordedAction
 {
@@ -13,7 +13,7 @@ public record RecordedAction
     /// </summary>
     public bool IsBurstMode { get; set; }
     public int PresetId { get; set; }
-    public Preset Preset { get; set; }
+    public Preset? Preset { get; set; }
     public string KeyString => Key.ToString();
     public string FormattedTimestamp => Timestamp.ToString(@"hh\:mm\:ss\.fff");
 };
