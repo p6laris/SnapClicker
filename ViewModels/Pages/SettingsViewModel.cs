@@ -24,6 +24,7 @@ namespace SnapClicker.ViewModels.Pages
         [ObservableProperty] private bool _isCoordinateJitterExpanded;
         [ObservableProperty] private double _coordinateJitterRadiusPx = 3;
         [ObservableProperty] private double _actionInterval;
+        [ObservableProperty] private string _selectedPlaybackSpeedOption;
         [ObservableProperty] private string _lastCheckedUpdateTime = string.Empty;
         [ObservableProperty] private bool _isUpdateAvailable;
         [ObservableProperty] private string _toUpdateVersion = string.Empty;
@@ -34,6 +35,11 @@ namespace SnapClicker.ViewModels.Pages
         [ObservableProperty] private string _appVersion = string.Empty;
         [ObservableProperty] private ApplicationTheme _currentTheme = ApplicationThemeManager.GetAppTheme();
 
+        public List<string> PlaybackSpeedOptions { get; } = new()
+        {
+            "0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "2x", "3x", "5x", "10x"
+        };
+
         private readonly ObservableList<ThemeOption> _themeOptions = new();
         public NotifyCollectionChangedSynchronizedViewList<ThemeOption> ThemesView { get; }
 
@@ -42,12 +48,20 @@ namespace SnapClicker.ViewModels.Pages
             _dialogService = dialogService;
             _snackbarService = snackbarService;
             _updateManager = new UpdateManager(new GithubSource(Source, string.Empty, false));
+            _selectedPlaybackSpeedOption = FormatSpeedOption(AppConfig.PlaybackSpeed);
 
-            ThemesView = _themeOptions.ToNotifyCollectionChangedSlim();
+            ThemesView = _themeOptions.ToNotifyCollectionChanged(SynchronizationContextCollectionEventDispatcher.Current);
             _themeOptions.AddRange(new[]
             {
                 new ThemeOption { DisplayName = "Light", Value = ApplicationTheme.Light },
                 new ThemeOption { DisplayName = "Dark", Value = ApplicationTheme.Dark }
+            });
+
+            WeakReferenceMessenger.Default.Register<PlaybackSpeedMessage>(this, (r, m) =>
+            {
+                var formatted = FormatSpeedOption(m.Value);
+                if (SelectedPlaybackSpeedOption != formatted)
+                    SelectedPlaybackSpeedOption = formatted;
             });
 
             LoadConfig();
@@ -66,6 +80,7 @@ namespace SnapClicker.ViewModels.Pages
             IsCoordinateJitterExpanded = AppConfig.IsCoordinateJitterEnabled;
             CoordinateJitterRadiusPx = AppConfig.CoordinateJitterRadiusPx;
             ActionInterval = AppConfig.ActionInterval;
+            SelectedPlaybackSpeedOption = FormatSpeedOption(AppConfig.PlaybackSpeed);
             LastCheckedUpdateTime = $"Last Checked {AppConfig.LastCheckedUpdate}";
         }
 
@@ -192,6 +207,23 @@ namespace SnapClicker.ViewModels.Pages
             AppConfig.CoordinateJitterRadiusPx = (int)value;
             WeakReferenceMessenger.Default.Send(new CoordinateJitterMessage((IsCoordinateJitterEnabled, (int)value)));
         }
+
+        partial void OnSelectedPlaybackSpeedOptionChanged(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return;
+            var clean = value.TrimEnd('x', 'X').Trim();
+            if (double.TryParse(clean, NumberStyles.Any, CultureInfo.InvariantCulture, out var speed) && speed > 0)
+            {
+                AppConfig.PlaybackSpeed = speed;
+                WeakReferenceMessenger.Default.Send(new PlaybackSpeedMessage(speed));
+            }
+        }
+
+        private static string FormatSpeedOption(double speed)
+        {
+            return speed % 1 == 0 ? $"{speed:0}x" : $"{speed:0.##}x";
+        }
+
         partial void OnCurrentThemeChanged(ApplicationTheme value)
         {
             ApplicationThemeManager.Apply(value);

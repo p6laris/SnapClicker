@@ -11,6 +11,12 @@ namespace SnapClicker.ViewModels.Pages
         
         [ObservableProperty] private PresetsDto? _selectedPreset;
         [ObservableProperty] private bool _isSimulationRunning;
+        [ObservableProperty] private string _selectedSpeedOption;
+
+        public List<string> SpeedOptions { get; } = new()
+        {
+            "0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "2x", "3x", "5x", "10x"
+        };
 
         public RecordPageViewModel(
             IInputSimulatorService inputSimulatorService,
@@ -20,13 +26,36 @@ namespace SnapClicker.ViewModels.Pages
             _inputSimulatorService = inputSimulatorService;
             _hotKeyManager = hotKeyManager;
             _navigationView = navigationService.GetNavigationControl();
+            _selectedSpeedOption = FormatSpeedOption(AppConfig.PlaybackSpeed);
 
             RegisterHotKeys();
             WeakReferenceMessenger.Default.Register<PlayAndStopRecordHotKeyMessage>(this, (r, m) =>
             {
                 UpdateHotKey(m.Value);
             });
-            
+
+            WeakReferenceMessenger.Default.Register<PlaybackSpeedMessage>(this, (r, m) =>
+            {
+                var formatted = FormatSpeedOption(m.Value);
+                if (SelectedSpeedOption != formatted)
+                    SelectedSpeedOption = formatted;
+            });
+        }
+
+        partial void OnSelectedSpeedOptionChanged(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return;
+            var clean = value.TrimEnd('x', 'X').Trim();
+            if (double.TryParse(clean, NumberStyles.Any, CultureInfo.InvariantCulture, out var speed) && speed > 0)
+            {
+                AppConfig.PlaybackSpeed = speed;
+                WeakReferenceMessenger.Default.Send(new PlaybackSpeedMessage(speed));
+            }
+        }
+
+        private static string FormatSpeedOption(double speed)
+        {
+            return speed % 1 == 0 ? $"{speed:0}x" : $"{speed:0.##}x";
         }
 
         private void RegisterHotKeys()

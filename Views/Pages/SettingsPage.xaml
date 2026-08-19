@@ -118,6 +118,38 @@
             </ui:CardControl>
         </Grid>
 
+        <!--  Playback Speed Multiplier  -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:CardControl
+                Icon="{ui:SymbolIcon FastForward24}"
+                Margin="4"
+                Padding="20,10,20,10">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock
+                            FontTypography="BodyStrong"
+                            Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+                            Margin="0"
+                            Text="Playback Speed Multiplier"
+                            TextWrapping="WrapWithOverflow" />
+                        <ui:TextBlock
+                            Appearance="Secondary"
+                            Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                            Text="Speed up (e.g. 2x, 5x) or slow down (e.g. 0.5x) action replay speeds."
+                            TextWrapping="WrapWithOverflow" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ComboBox
+                    ItemsSource="{Binding ViewModel.PlaybackSpeedOptions}"
+                    SelectedItem="{Binding ViewModel.SelectedPlaybackSpeedOption, Mode=TwoWay}"
+                    Width="120" />
+            </ui:CardControl>
+        </Grid>
+
         <!--  Mouse Movement  -->
         <Grid>
             <Grid.ColumnDefinitions>

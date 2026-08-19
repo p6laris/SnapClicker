@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Title="DashboardPage"
     d:DataContext="{d:DesignInstance local:RecordPage,
@@ -63,24 +63,51 @@
             BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1,1,1,0"
             CornerRadius="8"
-            Padding="16">
-            <!--  Recording menu  -->
-            <Menu FontSize="14">
-                <ui:MenuItem
-                    Command="{Binding ViewModel.PlayActionsCommand}"
-                    Header="Play"
-                    Icon="{ui:SymbolIcon Replay20,
-                                         Filled=False}"
-                    IsEnabled="{Binding ViewModel.IsSimulationRunning, Converter={StaticResource BooleanInverterConverter}}"
-                    ToolTip="Play the record." />
-                <ui:MenuItem
-                    Command="{Binding ViewModel.StopActionsCommand}"
-                    Header="Stop"
-                    Icon="{ui:SymbolIcon RecordStop24,
-                                         Filled=False}"
-                    IsEnabled="{Binding ViewModel.IsSimulationRunning}"
-                    ToolTip="Stop the record." />
-            </Menu>
+            Padding="16,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!--  Recording menu  -->
+                <Menu FontSize="14" Grid.Column="0" VerticalAlignment="Center">
+                    <ui:MenuItem
+                        Command="{Binding ViewModel.PlayActionsCommand}"
+                        Header="Play"
+                        Icon="{ui:SymbolIcon Play20,
+                                             Filled=False}"
+                        IsEnabled="{Binding ViewModel.IsSimulationRunning, Converter={StaticResource BooleanInverterConverter}}"
+                        ToolTip="Play the record." />
+                    <ui:MenuItem
+                        Command="{Binding ViewModel.StopActionsCommand}"
+                        Header="Stop"
+                        Icon="{ui:SymbolIcon RecordStop24,
+                                             Filled=False}"
+                        IsEnabled="{Binding ViewModel.IsSimulationRunning}"
+                        ToolTip="Stop the record." />
+                </Menu>
+
+                <!--  Playback Speed Multiplier  -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <ui:SymbolIcon
+                        FontSize="16"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                        Margin="0,0,6,0"
+                        Symbol="FastForward20"
+                        VerticalAlignment="Center" />
+                    <ui:TextBlock
+                        Appearance="Secondary"
+                        FontTypography="Caption"
+                        Margin="0,0,8,0"
+                        Text="Speed:"
+                        VerticalAlignment="Center" />
+                    <ComboBox
+                        ItemsSource="{Binding ViewModel.SpeedOptions}"
+                        SelectedItem="{Binding ViewModel.SelectedSpeedOption, Mode=TwoWay}"
+                        Width="90" />
+                </StackPanel>
+            </Grid>
         </Border>
         <Border
             Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"

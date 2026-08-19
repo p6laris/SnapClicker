@@ -25,12 +25,16 @@ namespace SnapClicker.Services
             _timingJitterRangeMs = AppConfig.TimingJitterRangeMs;
             _isCoordinateJitterEnabled = AppConfig.IsCoordinateJitterEnabled;
             _coordinateJitterRadiusPx = AppConfig.CoordinateJitterRadiusPx;
+            _speedMultiplier = AppConfig.PlaybackSpeed;
             
             WeakReferenceMessenger.Default.Register<ActionIntervalMessage>(this, (r,m) 
                 => _interval = m.Value );
             
             WeakReferenceMessenger.Default.Register<PreciseDelayMessage>(this, (r,m) 
                 => _isPreciseDelaysEnabled = m.Value );
+
+            WeakReferenceMessenger.Default.Register<PlaybackSpeedMessage>(this, (r, m)
+                => _speedMultiplier = Math.Max(0.1, m.Value));
 
             WeakReferenceMessenger.Default.Register<TimingJitterMessage>(this, (r, m) =>
             {
@@ -45,13 +49,16 @@ namespace SnapClicker.Services
             });
         }
         
+        private double _speedMultiplier = 1.0;
+
         /// <inheritdoc />
         public async ValueTask Simulate(List<RecordedAction> actions, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting input simulation for {Count} actions (TimingJitter={TimingJitter}, CoordJitter={CoordJitter}).", 
-                actions.Count, _isTimingJitterEnabled, _isCoordinateJitterEnabled);
+            _logger.LogInformation("Starting input simulation for {Count} actions (Speed={Speed}x, TimingJitter={TimingJitter}, CoordJitter={CoordJitter}).", 
+                actions.Count, _speedMultiplier, _isTimingJitterEnabled, _isCoordinateJitterEnabled);
             var baseTime = actions.FirstOrDefault(a => !a.IsBurstMode)?.Timestamp ?? TimeSpan.Zero;
             _stopwatch.Restart();
+            double speed = Math.Max(0.1, _speedMultiplier);
 
             foreach (var action in actions)
             {
@@ -69,7 +76,7 @@ namespace SnapClicker.Services
 
                 if (action.IsBurstMode)
                 {
-                    var delayMs = action.Timestamp.TotalMilliseconds;
+                    var delayMs = action.Timestamp.TotalMilliseconds / speed;
                     if (_isTimingJitterEnabled && delayMs > 0)
                     {
                         int jitter = Random.Shared.Next(-_timingJitterRangeMs, _timingJitterRangeMs + 1);
@@ -80,7 +87,7 @@ namespace SnapClicker.Services
                 }
                 else
                 {
-                    var targetDelayMs = (action.Timestamp - baseTime).TotalMilliseconds;
+                    var targetDelayMs = ((action.Timestamp - baseTime).TotalMilliseconds) / speed;
                     if (_isTimingJitterEnabled && targetDelayMs > 0)
                     {
                         int jitter = Random.Shared.Next(-_timingJitterRangeMs, _timingJitterRangeMs + 1);
@@ -96,7 +103,7 @@ namespace SnapClicker.Services
 
                 if (_interval > 0)
                 {
-                    var intervalMs = _interval;
+                    var intervalMs = _interval / speed;
                     if (_isTimingJitterEnabled)
                     {
                         int jitter = Random.Shared.Next(-_timingJitterRangeMs, _timingJitterRangeMs + 1);
