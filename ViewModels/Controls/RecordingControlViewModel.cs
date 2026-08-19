@@ -230,8 +230,24 @@ public partial class RecordingControlViewModel : ObservableObject, IDisposable
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ChangeWindowsState(WindowState state) 
-        => Application.Current.MainWindow?.SetCurrentValue(Window.WindowStateProperty, state);
+    private void ChangeWindowsState(WindowState state)
+    {
+        var mainWindow = Application.Current.MainWindow;
+        if (mainWindow != null)
+        {
+            if (state == WindowState.Normal)
+            {
+                mainWindow.Show();
+                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Activate();
+                Methods.SetForegroundWindow(new WindowInteropHelper(mainWindow).Handle);
+            }
+            else
+            {
+                mainWindow.WindowState = state;
+            }
+        }
+    }
 
     private void ShowErrorMessage(string title, string content,SymbolIcon icon ) =>
         _snackbarService.Show(title, content,ControlAppearance.Danger, icon, TimeSpan.FromSeconds(5));

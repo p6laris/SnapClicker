@@ -144,7 +144,19 @@ namespace SnapClicker.ViewModels.Pages
         {
             var mainWindow = Application.Current.MainWindow;
             if (mainWindow != null)
-                mainWindow.WindowState = state;
+            {
+                if (state == WindowState.Normal)
+                {
+                    mainWindow.Show();
+                    mainWindow.WindowState = WindowState.Normal;
+                    mainWindow.Activate();
+                    Methods.SetForegroundWindow(new WindowInteropHelper(mainWindow).Handle);
+                }
+                else
+                {
+                    mainWindow.WindowState = state;
+                }
+            }
         }
         
         public void Dispose()

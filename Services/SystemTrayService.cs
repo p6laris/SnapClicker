@@ -158,13 +158,11 @@ public class SystemTrayService : ISystemTrayService
         };
         contextMenu.Items.Add(exitItem);
 
-        Methods.GetCursorPos(out var pt);
-        contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.AbsolutePoint;
-        contextMenu.HorizontalOffset = pt.X;
-        contextMenu.VerticalOffset = pt.Y;
-        contextMenu.IsOpen = true;
-
         Methods.SetForegroundWindow(_hwnd);
+        contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
+        if (_mainWindow != null)
+            contextMenu.PlacementTarget = _mainWindow;
+        contextMenu.IsOpen = true;
     }
 
     public void ShowNotification(string title, string message)

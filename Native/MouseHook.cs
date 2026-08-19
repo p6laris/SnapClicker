@@ -36,12 +36,12 @@ namespace SnapClicker.Native
             }
         }
 
-        private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        private unsafe IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode < 0)
                 return Methods.CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
 
-            var hookStruct = Marshal.PtrToStructure<MouseHookStruct>(lParam);
+            var hookStruct = *(MouseHookStruct*)lParam;
             TimeSpan timestamp = TimeSpan.FromMilliseconds(_stopwatch.ElapsedMilliseconds);
 
             switch ((int)wParam)
@@ -72,15 +72,13 @@ namespace SnapClicker.Native
             return Methods.CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
         }
 
-        public static void SimulateLeftClick(int x, int y)
+        public static unsafe void SimulateLeftClick(int x, int y)
         {
             Methods.SetCursorPos(x, y);
 
-            var inputs = new[]
-            {
-                CreateMouseInput(Constants.MouseeventfLeftdown),
-                CreateMouseInput(Constants.MouseeventfLeftup)
-            };
+            InputStruct* inputs = stackalloc InputStruct[2];
+            inputs[0] = CreateMouseInput(Constants.MouseeventfLeftdown);
+            inputs[1] = CreateMouseInput(Constants.MouseeventfLeftup);
 
             Methods.SendInput(2, inputs, Marshal.SizeOf<InputStruct>());
         }
@@ -99,15 +97,13 @@ namespace SnapClicker.Native
             Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
-        public static void SimulateRightClick(int x, int y)
+        public static unsafe void SimulateRightClick(int x, int y)
         {
             Methods.SetCursorPos(x, y);
 
-            var inputs = new[]
-            {
-                CreateMouseInput(Constants.MouseeventfRightdown),
-                CreateMouseInput(Constants.MouseeventfRightup)
-            };
+            InputStruct* inputs = stackalloc InputStruct[2];
+            inputs[0] = CreateMouseInput(Constants.MouseeventfRightdown);
+            inputs[1] = CreateMouseInput(Constants.MouseeventfRightup);
 
             Methods.SendInput(2, inputs, Marshal.SizeOf<InputStruct>());
         }
@@ -126,15 +122,13 @@ namespace SnapClicker.Native
             Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
-        public static void SimulateMiddleClick(int x, int y)
+        public static unsafe void SimulateMiddleClick(int x, int y)
         {
             Methods.SetCursorPos(x, y);
 
-            var inputs = new[]
-            {
-                CreateMouseInput(Constants.MouseeventfMiddledown),
-                CreateMouseInput(Constants.MouseeventfMiddleup)
-            };
+            InputStruct* inputs = stackalloc InputStruct[2];
+            inputs[0] = CreateMouseInput(Constants.MouseeventfMiddledown);
+            inputs[1] = CreateMouseInput(Constants.MouseeventfMiddleup);
 
             Methods.SendInput(2, inputs, Marshal.SizeOf<InputStruct>());
         }
@@ -153,12 +147,14 @@ namespace SnapClicker.Native
             Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SimulateMouseMove(int x, int y)
         {
             Methods.SetCursorPos(x, y);
         }
 
-        private static  InputStruct CreateMouseInput(uint flags)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static InputStruct CreateMouseInput(uint flags)
         {
             return new InputStruct()
             {

@@ -1,4 +1,4 @@
-﻿using System.Windows.Controls.Primitives;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using SnapClicker.Services;
 using SnapClicker.ViewModels.Windows;
@@ -29,10 +29,18 @@ public partial class TrackerWindow : Window
 
         if (double.IsNaN(left) || double.IsNaN(top)) return;
 
-        Dispatcher.BeginInvoke(() =>
+        if (Dispatcher.CheckAccess())
         {
             Left = left;
             Top = top;
-        });
+        }
+        else
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Render, () =>
+            {
+                Left = left;
+                Top = top;
+            });
+        }
     }
 }

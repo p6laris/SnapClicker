@@ -1,10 +1,13 @@
-﻿namespace SnapClicker.Data;
+namespace SnapClicker.Data;
 
 public class PresetRepository(SnapClickerDbContext context) : IPresetRepository
 {
     public async Task<PresetsDto?> GetPresetAsync(int id)
     {
-        var preset = await context.Presets.FindAsync(id);
+        var preset = await context.Presets
+            .AsNoTracking()
+            .Include(p => p.RecordedActions)
+            .FirstOrDefaultAsync(p => p.Id == id);
         return preset?.ToPresetsDto();
     }
 

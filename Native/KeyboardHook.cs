@@ -30,11 +30,11 @@ namespace SnapClicker.Native
         }
 
 
-        private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        private unsafe IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0)
             {
-                var hookStruct = Marshal.PtrToStructure<KeyboardHookStruct>(lParam);
+                var hookStruct = *(KeyboardHookStruct*)lParam;
                 Key keyPressed = KeyInterop.KeyFromVirtualKey((int)hookStruct.vkCode);
 
                 TimeSpan timestamp = TimeSpan.FromMilliseconds(_stopwatch.ElapsedMilliseconds);
@@ -54,6 +54,7 @@ namespace SnapClicker.Native
             return Methods.CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SimulateKeyDown(Key key)
         {
             int vk = KeyInterop.VirtualKeyFromKey(key);
@@ -61,6 +62,7 @@ namespace SnapClicker.Native
             Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SimulateKeyUp(Key key)
         {
             int vk = KeyInterop.VirtualKeyFromKey(key);
@@ -68,6 +70,7 @@ namespace SnapClicker.Native
             Methods.SendInput(1, ref input, Marshal.SizeOf<InputStruct>());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static InputStruct CreateKeyboardInput(ushort vk, uint flags)
         {
             return new InputStruct()

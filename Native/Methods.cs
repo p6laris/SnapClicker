@@ -18,6 +18,9 @@ public static class Methods
         public static extern uint SendInput(uint nInputs, InputStruct[] pInputs, int cbSize);
 
         [DllImport("user32.dll", SetLastError = true)]
+        public static unsafe extern uint SendInput(uint nInputs, InputStruct* pInputs, int cbSize);
+
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern uint SendInput(uint nInputs, [In] ref readonly InputStruct pInputs, int cbSize);
 
         [DllImport("user32.dll")]
