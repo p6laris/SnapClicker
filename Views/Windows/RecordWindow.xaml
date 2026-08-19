@@ -1,18 +1,18 @@
-﻿<Window
+<Window
     Background="{DynamicResource ApplicationBackgroundBrush}"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-    Height="50"
+    Height="46"
     ResizeMode="NoResize"
     ShowInTaskbar="False"
     Title="RecordInfoWindow"
     Topmost="True"
-    Width="450"
+    Width="480"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None"
     d:DataContext="{d:DesignInstance local:RecordWindow,
                                      IsDesignTimeCreatable=True}"
-    d:DesignHeight="50"
-    d:DesignWidth="450"
+    d:DesignHeight="46"
+    d:DesignWidth="480"
     mc:Ignorable="d"
     x:Class="SnapClicker.Views.Windows.RecordWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -21,89 +21,90 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+    <Border
+        Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
+        BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
+        BorderThickness="1"
+        CornerRadius="8"
+        Padding="14,0">
+        <Grid VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <!-- Mouse coordinates -->
+                <ColumnDefinition Width="Auto" />
+                <!-- Separator -->
+                <ColumnDefinition Width="20" />
+                <!-- Captured Action -->
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        <!--  Recording section  -->
-        <Border
-            Background="{ui:ThemeResource CardBackgroundFillColorDefaultBrush}"
-            BorderBrush="{ui:ThemeResource CardStrokeColorDefaultBrush}"
-            BorderThickness="1,1,1,0"
-            CornerRadius="0,8,8,0"
-            Grid.Column="0"
-            Padding="8">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+            <!-- Mouse Coordinates -->
+            <StackPanel
+                Grid.Column="0"
+                Orientation="Horizontal"
+                VerticalAlignment="Center">
+                <ui:SymbolIcon
+                    FontSize="16"
+                    Margin="0,0,6,0"
+                    Symbol="DesktopCursor20"
+                    VerticalAlignment="Center" />
+                <ui:TextBlock
+                    FontTypography="BodyStrong"
+                    Margin="0,0,4,0"
+                    Text="X:"
+                    VerticalAlignment="Center" />
+                <ui:TextBlock
+                    FontTypography="Body"
+                    Margin="0,0,12,0"
+                    Text="{Binding ViewModel.CursorX}"
+                    VerticalAlignment="Center" />
+                <ui:TextBlock
+                    FontTypography="BodyStrong"
+                    Margin="0,0,4,0"
+                    Text="Y:"
+                    VerticalAlignment="Center" />
+                <ui:TextBlock
+                    FontTypography="Body"
+                    Text="{Binding ViewModel.CursorY}"
+                    VerticalAlignment="Center" />
+            </StackPanel>
 
-                <!--  Mouse coordinates  -->
-                <StackPanel
-                    Grid.Column="0"
-                    HorizontalAlignment="Center"
-                    Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="DesktopCursor20" />
-                    <ui:TextBlock
-                        FontTypography="BodyStrong"
-                        Margin="10,0,5,0"
-                        Text="X:"
-                        VerticalAlignment="Center" />
-                    <ui:TextBlock
-                        FontTypography="Body"
-                        Text="{Binding ViewModel.CursorX}"
-                        VerticalAlignment="Center" />
-                </StackPanel>
-
-                <!--  Key press  -->
-                <StackPanel
-                    Grid.Column="1"
-                    HorizontalAlignment="Center"
-                    Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <ui:TextBlock
-                        FontTypography="BodyStrong"
-                        Margin="0,0,5,0"
-                        Text="Y:"
-                        VerticalAlignment="Center" />
-                    <ui:TextBlock
-                        FontTypography="Body"
-                        Text="{Binding ViewModel.CursorY}"
-                        VerticalAlignment="Center" />
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!--  Recording capture log  -->
-        <StackPanel
-            Grid.Column="1"
-            Margin="5,0,0,0"
-            Orientation="Horizontal"
-            VerticalAlignment="Center">
-            <ui:SymbolIcon
+            <!-- Vertical Separator -->
+            <Rectangle
+                Fill="{ui:ThemeResource DividerStrokeColorDefaultBrush}"
+                Grid.Column="1"
+                Height="18"
                 HorizontalAlignment="Center"
-                Margin="0,0,5,0"
-                Symbol="Cursor20"
                 VerticalAlignment="Center"
-                Visibility="{Binding ViewModel.Key, Mode=TwoWay, Converter={StaticResource KeyToVisibilityConverter}, ConverterParameter=true}" />
-            <ui:SymbolIcon
-                HorizontalAlignment="Center"
-                Margin="0,0,5,0"
-                Symbol="Keyboard20"
-                VerticalAlignment="Center"
-                Visibility="{Binding ViewModel.Key, Mode=TwoWay, Converter={StaticResource KeyToVisibilityConverter}}" />
-            <ui:TextBlock
-                FontWeight="SemiBold"
-                Margin="0,0,5,0"
-                Text="{Binding ViewModel.Type, Mode=TwoWay}" />
-            <ui:TextBlock Text="has been captured." />
-        </StackPanel>
-    </Grid>
+                Width="1" />
+
+            <!-- Captured Action Log -->
+            <StackPanel
+                Grid.Column="2"
+                Orientation="Horizontal"
+                VerticalAlignment="Center">
+                <ui:SymbolIcon
+                    FontSize="16"
+                    Margin="0,0,6,0"
+                    Symbol="Cursor20"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding ViewModel.Key, Mode=OneWay, Converter={StaticResource KeyToVisibilityConverter}, ConverterParameter=true}" />
+                <ui:SymbolIcon
+                    FontSize="16"
+                    Margin="0,0,6,0"
+                    Symbol="Keyboard20"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding ViewModel.Key, Mode=OneWay, Converter={StaticResource KeyToVisibilityConverter}}" />
+                <ui:TextBlock
+                    FontTypography="BodyStrong"
+                    Margin="0,0,5,0"
+                    Text="{Binding ViewModel.Type, Mode=OneWay}"
+                    VerticalAlignment="Center" />
+                <ui:TextBlock
+                    FontTypography="Body"
+                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                    Text="captured"
+                    VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Border>
 </Window>
