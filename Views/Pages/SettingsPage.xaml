@@ -243,10 +243,11 @@
                         Minimum="1"
                         PlaceholderText="± ms"
                         SmallChange="5"
-                        Value="{Binding ViewModel.TimingJitterRangeMs, UpdateSourceTrigger=PropertyChanged}"
+                        SpinButtonPlacementMode="Compact"
+                        Value="{Binding ViewModel.TimingJitterRangeMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Visibility="{Binding ViewModel.IsTimingJitterEnabled, Converter={StaticResource BoolToVisibilityConverter}}"
-                        Width="100" />
-                    <ui:ToggleSwitch IsChecked="{Binding ViewModel.IsTimingJitterEnabled}" />
+                        Width="120" />
+                    <ui:ToggleSwitch IsChecked="{Binding ViewModel.IsTimingJitterEnabled, Mode=TwoWay}" />
                 </StackPanel>
             </ui:CardControl>
         </Grid>
@@ -285,10 +286,11 @@
                         Minimum="1"
                         PlaceholderText="± px"
                         SmallChange="1"
-                        Value="{Binding ViewModel.CoordinateJitterRadiusPx, UpdateSourceTrigger=PropertyChanged}"
+                        SpinButtonPlacementMode="Compact"
+                        Value="{Binding ViewModel.CoordinateJitterRadiusPx, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Visibility="{Binding ViewModel.IsCoordinateJitterEnabled, Converter={StaticResource BoolToVisibilityConverter}}"
-                        Width="100" />
-                    <ui:ToggleSwitch IsChecked="{Binding ViewModel.IsCoordinateJitterEnabled}" />
+                        Width="120" />
+                    <ui:ToggleSwitch IsChecked="{Binding ViewModel.IsCoordinateJitterEnabled, Mode=TwoWay}" />
                 </StackPanel>
             </ui:CardControl>
         </Grid>
